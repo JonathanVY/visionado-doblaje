@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Proceso de Visionado de Doblaje</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0A0B10;
+    --panel:#14161F;
+    --panel-alt:#1B1E2B;
+    --panel-line: rgba(255,255,255,0.07);
+    --text:#EDEEF2;
+    --muted:#8B90A0;
+    --dim:#565B6B;
+
+    --s1:#5EE6D0; --s1-soft:#274842;
+    --s2:#B7E36B; --s2-soft:#33401f;
+    --s3:#6FAEEA; --s3-soft:#20344a;
+    --s4:#E8B86D; --s4-soft:#453623;
+
+    --danger:#E5484D; --danger-soft:#3a1f22;
+
+    --accent: var(--s1);
+    --accent-soft: var(--s1-soft);
+
+    box-sizing:border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *,*::before,*::after{ box-sizing:inherit; }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background:var(--void);
+    color:var(--text);
+    font-family:'Space Grotesk', -apple-system, sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+  }
+
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+
+  /* background texture: faint waveform */
+  #bg-wave{
+    position:fixed; inset:0; z-index:0; opacity:0.35; pointer-events:none;
+  }
+
+  #app{ position:relative; z-index:1; min-height:100%; }
+
+  /* ---------- SCREENS ---------- */
+  .screen{
+    display:none;
+    min-height:100vh;
+    min-height:100dvh;
+  }
+  .screen.active{ display:block; }
+
+  /* ---------- HERO ---------- */
+  #screen-hero{
+    display:none;
+    min-height:100vh; min-height:100dvh;
+    flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding:8vh 6vw;
+    position:relative;
+  }
+  #screen-hero.active{ display:flex; }
+
+  .hero-eyebrow{
+    font-size:0.78rem; letter-spacing:0.14em;
+    color:var(--dim);
+    margin-bottom:1.6rem;
+  }
+  .hero-eyebrow b{ color:var(--muted); font-weight:600; }
+
+  h1.hero-title{
+    font-size:clamp(2.4rem, 7vw, 5.2rem);
+    line-height:1.02;
+    font-weight:700;
+    margin:0;
+    letter-spacing:-0.01em;
+    max-width:16ch;
+  }
+  h1.hero-title .line2{
+    display:block;
+    background:linear-gradient(90deg,var(--s1),var(--s3));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .hero-sub{
+    margin:1.8rem 0 3rem;
+    max-width:46ch;
+    color:var(--muted);
+    font-size:1.05rem;
+    line-height:1.55;
+  }
+
+  .btn-primary{
+    appearance:none; border:none; cursor:pointer;
+    background:var(--text); color:var(--void);
+    font-family:inherit; font-weight:600; font-size:1rem;
+    padding:1rem 2rem; border-radius:100px;
+    display:inline-flex; align-items:center; gap:0.6rem;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow:0 0 0 0 rgba(237,238,242,0);
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 30px -8px rgba(237,238,242,0.35); }
+  .btn-primary:active{ transform:translateY(0); }
+  .btn-primary svg{ width:16px; height:16px; transition:transform 0.15s ease; }
+  .btn-primary:hover svg{ transform:translateX(3px); }
+
+  .hero-preview{
+    margin-top:4.5rem;
+    display:flex; flex-wrap:wrap; justify-content:center; gap:0.5rem 0;
+    font-size:0.78rem;
+    color:var(--dim);
+  }
+  .hero-preview button{
+    all:unset; cursor:pointer;
+    padding:0.4rem 0.9rem; border-right:1px solid var(--panel-line);
+    font-family:'IBM Plex Mono', monospace; font-size:0.78rem; color:var(--dim);
+    display:inline-flex; align-items:center; gap:0.5rem;
+    transition:color 0.15s ease;
+  }
+  .hero-preview button:last-child{ border-right:none; }
+  .hero-preview button b{ color:var(--muted); font-weight:500; transition:color 0.15s ease; }
+  .hero-preview button .chip{
+    width:6px; height:6px; border-radius:50%; background:var(--dim);
+    flex:none; transition:background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .hero-preview button:hover{ color:var(--hp-accent); }
+  .hero-preview button:hover b{ color:var(--hp-accent); }
+  .hero-preview button:hover .chip{ background:var(--hp-accent); box-shadow:0 0 0 4px color-mix(in srgb, var(--hp-accent) 20%, transparent); }
+  .hero-preview button:focus-visible{ outline:2px solid var(--hp-accent); outline-offset:3px; border-radius:6px; }
+
+  /* ---------- HEADER (overview + detail) ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1.4rem clamp(1.2rem,4vw,3rem);
+    border-bottom:1px solid var(--panel-line);
+    position:sticky; top:0; z-index:20;
+    background:rgba(10,11,16,0.82);
+    backdrop-filter:blur(10px);
+  }
+  .topbar-title{
+    font-size:0.95rem; font-weight:600; letter-spacing:0.01em;
+    display:flex; align-items:center; gap:0.6rem;
+    cursor:pointer; background:none; border:none; color:var(--text); font-family:inherit;
+  }
+  .topbar-title .dot{ width:8px; height:8px; border-radius:50%; background:var(--s1); flex:none; }
+  .topbar-link{
+    font-size:0.85rem; color:var(--muted); text-decoration:none;
+    display:flex; align-items:center; gap:0.4rem;
+    background:none; border:none; cursor:pointer; font-family:inherit;
+    padding:0.5rem 0.9rem; border-radius:100px; transition:background 0.15s ease, color 0.15s ease;
+  }
+  .topbar-link:hover{ background:var(--panel); color:var(--text); }
+  .topbar-link svg{ width:14px; height:14px; }
+
+  /* ---------- OVERVIEW (pipeline) ---------- */
+  #screen-overview .wrap{
+    max-width:1180px; margin:0 auto;
+    padding:clamp(2.2rem,6vw,4.5rem) clamp(1.2rem,4vw,3rem) 6rem;
+  }
+  .overview-heading{ max-width:60ch; margin-bottom:3.2rem; }
+  .overview-heading h2{
+    font-size:clamp(1.6rem,3.6vw,2.3rem); margin:0 0 0.8rem; font-weight:600; letter-spacing:-0.01em;
+  }
+  .overview-heading p{ color:var(--muted); line-height:1.6; margin:0; font-size:1rem; }
+
+  .pipeline{
+    display:grid; grid-template-columns:repeat(4,1fr);
+    gap:0; position:relative;
+  }
+  .pipeline-connector{
+    grid-column:1/-1; display:flex; justify-content:space-between;
+    padding:0 clamp(1.1rem,2.6vw,2.3rem);
+    margin:-1.55rem 0 1.4rem;
+    pointer-events:none;
+  }
+  .pipeline-connector svg{ width:34px; height:14px; color:var(--dim); }
+  @media (max-width:880px){
+    .pipeline{ grid-template-columns:1fr; gap:1.1rem; }
+    .pipeline-connector{ display:none; }
+  }
+
+  .stage-card{
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:18px;
+    padding:1.7rem 1.5rem;
+    text-align:left;
+    cursor:pointer;
+    font-family:inherit;
+    color:var(--text);
+    display:flex; flex-direction:column; gap:0.9rem;
+    position:relative;
+    transition:border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  }
+  @media (min-width:881px){
+    .stage-card:nth-child(1){ border-top-right-radius:0; border-bottom-right-radius:0; border-right:none; }
+    .stage-card:nth-child(2){ border-radius:0; border-right:none; }
+    .stage-card:nth-child(3){ border-radius:0; border-right:none; }
+    .stage-card:nth-child(4){ border-top-left-radius:0; border-bottom-left-radius:0; }
+  }
+  .stage-card:hover{ background:var(--panel-alt); transform:translateY(-3px); }
+  .stage-card:focus-visible{ outline:2px solid var(--accent-card); outline-offset:2px; }
+
+  .stage-num{
+    font-size:0.72rem; letter-spacing:0.08em;
+    display:flex; align-items:center; gap:0.5rem;
+  }
+  .stage-num .chip{
+    width:9px; height:9px; border-radius:2px;
+  }
+  .stage-num span{ color:var(--dim); }
+
+  .stage-card h3{ margin:0; font-size:1.15rem; font-weight:600; line-height:1.25; }
+
+  .stage-field{ font-size:0.8rem; color:var(--muted); line-height:1.5; }
+  .stage-field b{ color:var(--dim); font-weight:500; }
+
+  .stage-goto{
+    margin-top:auto; padding-top:0.4rem;
+    font-size:0.8rem; color:var(--dim);
+    display:flex; align-items:center; gap:0.35rem;
+  }
+  .stage-card:hover .stage-goto{ color:var(--text); }
+  .stage-goto svg{ width:13px; height:13px; transition:transform 0.15s ease; }
+  .stage-card:hover .stage-goto svg{ transform:translateX(3px); }
+
+  /* ---------- DETAIL ---------- */
+  #screen-detail .wrap{
+    max-width:1040px; margin:0 auto;
+    padding:clamp(1.8rem,5vw,3.2rem) clamp(1.2rem,4vw,3rem) 7rem;
+  }
+
+  .detail-head{ margin-bottom:2.6rem; }
+  .detail-crumbs{
+    display:flex; align-items:center; gap:0.5rem; margin-bottom:1.3rem;
+  }
+  .crumb-dot{
+    width:8px; height:8px; border-radius:50%; background:var(--panel-alt);
+    border:1px solid var(--panel-line); cursor:pointer; padding:0; transition:background 0.15s ease, border-color .15s ease, transform .15s ease;
+  }
+  .crumb-dot.active{ background:var(--accent-card); border-color:var(--accent-card); transform:scale(1.25); }
+
+  .detail-eyebrow{ font-size:0.78rem; color:var(--dim); margin-bottom:0.6rem; letter-spacing:0.03em; }
+  .detail-eyebrow b{ color:var(--accent-card); font-weight:600; }
+  .detail-head h2{ font-size:clamp(1.7rem,4vw,2.5rem); margin:0; font-weight:700; letter-spacing:-0.01em; }
+
+  .io-strip{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+    background:var(--panel-line);
+    border:1px solid var(--panel-line); border-radius:14px; overflow:hidden;
+    margin-top:1.8rem;
+  }
+  .io-cell{ background:var(--panel); padding:1rem 1.2rem; }
+  .io-cell .lbl{ font-size:0.68rem; color:var(--dim); letter-spacing:0.08em; margin-bottom:0.4rem; display:block;}
+  .io-cell .val{ font-size:0.88rem; line-height:1.4; }
+  @media (max-width:640px){ .io-strip{ grid-template-columns:1fr; } }
+
+  /* flow chain */
+  .flow-section{ margin-top:3.4rem; }
+  .flow-section > h4{
+    font-size:0.78rem; letter-spacing:0.08em; color:var(--dim); margin:0 0 1.4rem;
+    display:flex; align-items:center; gap:0.6rem;
+  }
+  .flow-section > h4::after{ content:''; flex:1; height:1px; background:var(--panel-line); }
+
+  .flow-chain{
+    display:flex; flex-direction:column; gap:0;
+  }
+  .flow-item{ position:relative; }
+  .flow-row{ display:flex; align-items:stretch; gap:1.1rem; }
+  .flow-rail{
+    width:26px; flex:none; display:flex; flex-direction:column; align-items:center;
+  }
+  .flow-node-dot{
+    width:26px; height:26px; border-radius:50%;
+    background:var(--panel-alt); border:1px solid var(--panel-line);
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.68rem; font-weight:600; color:var(--muted);
+    flex:none;
+  }
+  .flow-line{ width:1px; flex:1; background:var(--panel-line); min-height:1rem; }
+  .flow-item:last-child .flow-line{ display:none; }
+
+  .flow-card{
+    flex:1; background:var(--panel); border:1px solid var(--panel-line);
+    border-radius:14px; padding:1.15rem 1.3rem; margin-bottom:1.1rem;
+  }
+  .flow-card h5{ margin:0 0 0.7rem; font-size:1rem; font-weight:600; }
+  .flow-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:0.6rem 1rem; }
+  @media (max-width:560px){ .flow-grid{ grid-template-columns:1fr; } }
+  .flow-grid div{ font-size:0.8rem; color:var(--muted); line-height:1.45; }
+  .flow-grid b{ display:block; font-size:0.66rem; letter-spacing:0.07em; color:var(--dim); margin-bottom:0.2rem; font-weight:500; }
+
+  .branch-wrap{
+    margin:0.7rem 0 1.1rem 3.7rem;
+    padding-left:1.1rem;
+    border-left:2px dashed var(--panel-line);
+  }
+  .branch-tag{
+    font-size:0.68rem; color:var(--dim); letter-spacing:0.06em; margin-bottom:0.5rem;
+    display:flex; align-items:center; gap:0.4rem;
+  }
+  .branch-tag svg{ width:12px; height:12px; }
+  .branch-wrap .flow-card{ background:var(--panel-alt); }
+
+  /* bottleneck */
+  .bottleneck{
+    margin-top:3.2rem;
+    background:var(--danger-soft);
+    border:1px solid rgba(229,72,77,0.35);
+    border-radius:16px;
+    padding:1.6rem 1.7rem 1.8rem;
+  }
+  .bottleneck-head{ display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem; }
+  .bottleneck-head svg{ width:17px; height:17px; color:var(--danger); flex:none; }
+  .bottleneck-head span{ font-size:0.78rem; letter-spacing:0.09em; color:#f2b0b2; font-weight:600; }
+
+  .bottleneck-chain{ display:flex; flex-wrap:wrap; align-items:stretch; gap:0.7rem; }
+  .bn-card{
+    background:rgba(0,0,0,0.18); border:1px solid rgba(229,72,77,0.25);
+    border-radius:10px; padding:0.85rem 1rem; font-size:0.85rem; color:#f0d6d6;
+    line-height:1.45; flex:1; min-width:180px;
+  }
+  .bn-arrow{ display:flex; align-items:center; color:rgba(229,72,77,0.55); flex:none; }
+  .bn-arrow svg{ width:16px; height:16px; }
+  @media (max-width:640px){ .bn-arrow svg{ transform:rotate(90deg); } .bottleneck-chain{ flex-direction:column; } }
+
+  .bn-branches{ display:flex; gap:0.8rem; flex-wrap:wrap; }
+  .bn-branches .bn-card{ flex:1; min-width:200px; }
+
+  /* footer nav */
+  .detail-nav{
+    display:flex; align-items:center; justify-content:space-between; gap:1rem;
+    margin-top:3.6rem; padding-top:2rem; border-top:1px solid var(--panel-line);
+  }
+  .nav-btn{
+    background:var(--panel); border:1px solid var(--panel-line); color:var(--text);
+    font-family:inherit; cursor:pointer; border-radius:12px;
+    padding:0.85rem 1.1rem; display:flex; align-items:center; gap:0.7rem;
+    max-width:46%; text-align:left; transition:background 0.15s ease, border-color 0.15s ease;
+  }
+  .nav-btn:hover{ background:var(--panel-alt); }
+  .nav-btn:disabled{ opacity:0.3; pointer-events:none; }
+  .nav-btn.next{ margin-left:auto; text-align:right; flex-direction:row-reverse; }
+  .nav-btn svg{ width:16px; height:16px; flex:none; color:var(--dim); }
+  .nav-btn .nb-lbl{ font-size:0.68rem; color:var(--dim); letter-spacing:0.06em; display:block; margin-bottom:0.15rem; }
+  .nav-btn .nb-name{ font-size:0.9rem; font-weight:600; }
+
+  ::selection{ background:var(--accent-card); color:#0A0B10; }
+
+  .fade-in{ animation:fadeIn 0.35s ease both; }
+  @keyframes fadeIn{ from{ opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  #version-badge{
+    position:fixed;
+    right:calc(14px + env(safe-area-inset-right, 0px));
+    bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+    font-size:0.66rem;
+    color:var(--dim);
+    opacity:0.5;
+    letter-spacing:0.02em;
+    z-index:50;
+    pointer-events:none;
+    background:rgba(10,11,16,0.55);
+    padding:0.25rem 0.55rem;
+    border-radius:100px;
+    border:1px solid var(--panel-line);
+    backdrop-filter:blur(4px);
+  }
+  @media (max-width:560px){ #version-badge{ font-size:0.6rem; } }
+</style>
+</head>
+<body>
+
+<svg id="bg-wave" preserveAspectRatio="none"></svg>
+
+<div id="app">
+
+  <div id="version-badge" class="mono"></div>
+
+  <!-- HERO -->
+  <section id="screen-hero" class="screen active">
+    <div class="hero-eyebrow mono">PROCESO INTERNO · DISTRIBUCIÓN <b>· 4 ETAPAS</b></div>
+    <h1 class="hero-title">Proceso de visionado<span class="line2">de doblaje</span></h1>
+    <p class="hero-sub">De la base de emisiones bruta hasta la categoría final en Thespis: el recorrido completo de cada obra doblada, con sus responsables, entregables y cuellos de botella.</p>
+    <button class="btn-primary" id="btn-enter">
+      Ver las 4 etapas
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+    <div class="hero-preview mono" id="hero-preview"></div>
+  </section>
+
+  <!-- OVERVIEW -->
+  <section id="screen-overview" class="screen">
+    <div class="topbar">
+      <button class="topbar-title" id="brand-home">
+        <span class="dot"></span> Visionado de doblaje
+      </button>
+      <span class="topbar-link" style="cursor:default;">Vista general</span>
+    </div>
+    <div class="wrap">
+      <div class="overview-heading fade-in">
+        <h2>Cuatro etapas, un mismo flujo</h2>
+        <p>Cada etapa recibe lo que entrega la anterior. Elige una para ver su desglose completo, responsables y cuellos de botella.</p>
+      </div>
+      <div class="pipeline" id="pipeline"></div>
+    </div>
+  </section>
+
+  <!-- DETAIL -->
+  <section id="screen-detail" class="screen">
+    <div class="topbar">
+      <button class="topbar-title" id="brand-home-2">
+        <span class="dot" id="brand-dot"></span> Visionado de doblaje
+      </button>
+      <button class="topbar-link" id="btn-overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        Vista general
+      </button>
+    </div>
+    <div class="wrap" id="detail-wrap"></div>
+  </section>
+
+</div>
+
+<script>
+/* ---------------- VERSIÓN DEL SITIO ---------------- */
+/* Edita estas dos líneas cada vez que subas cambios significativos */
+const SITE_VERSION = 'v1.1';
+const SITE_UPDATED  = '26 sep 2026';
+document.getElementById('version-badge').textContent = `${SITE_VERSION} · ${SITE_UPDATED}`;
+
+/* ---------------- DATA (extraído del mapa mental) ---------------- */
+const STAGES = [
+  {
+    id:'limpiar', num:1, name:'Limpiar emisiones', accent:'--s1',
+    summary:{que:'Base emisiones', quien:'Julie', sale:'Base de datos de obras para asignación'},
+    steps:[
+      { title:'Base de emisiones limpia', que:'Base emisiones', quien:'Julie', sale:'Base de emisiones limpia' },
+      { title:'Base de emisiones clasificadas', que:'Base de emisiones limpia', quien:'Julie', sale:'Base de emisiones clasificadas',
+        branch:{ label:'Salida paralela', title:'Volcado', que:'Base de emisiones clasificadas', quien:'Asistente de Distribución', sale:'Volcado de emisiones en Thespis' } },
+      { title:'Obras con doblaje colombiano', que:'Base de emisiones clasificadas', quien:'Julie', sale:'Identificación obras protegidas',
+        branch:{ label:'Salida paralela', title:'Base para proveedor', que:'Identificación obras protegidas', quien:'Julie', sale:'Envío base obras protegidas a proveedor para ajuste' } },
+      { title:'Base para asignación de obras', que:'Identificación obras protegidas', quien:'Julie', sale:'Base de datos de obras para asignación' },
+    ],
+    bottleneck:{ type:'chain', items:['Limpieza base de datos de las emisiones','Mega bases sin un dato confiable para gestionar con más agilidad','Gestión manual'] }
+  },
+  {
+    id:'asignacion', num:2, name:'Asignación de obras', accent:'--s2',
+    summary:{que:'Base de datos de obras para asignación', quien:'Julie', sale:'Asignación de obras para visionar'},
+    steps:[
+      { title:'Creación carpetas', que:'Base de datos de obras para asignación', quien:'Julie', sale:'Creación archivos por canales' },
+      { title:'Obras pendientes por visionar', que:'Archivos por canales', quien:'Julie', sale:'Identificación de obras pendientes por visionar' },
+      { title:'Contenidos para visionar', que:'Obras pendientes por visionar', quien:'Julie', sale:'Obtención material para visionar' },
+      { title:'Asignación de obras', que:'Material para visionar', quien:'Julie', sale:'Asignación de obras para visionar (planner)' },
+    ],
+    bottleneck:{ type:'chain', items:['No encontrar contenido para visionar','Al buscar en internet, páginas, apps, canales de YouTube y emisión enviada por el canal, no se encuentra el contenido','No se puede visionar hasta que el proveedor envíe el contenido'] }
+  },
+  {
+    id:'visionado', num:3, name:'Visionado', accent:'--s3',
+    summary:{que:'Asignación de obras para visionar', quien:'Asistente distribución', sale:'Información para imputar'},
+    steps:[
+      { title:'Creación carpetas y fichas', que:'Asignación de obras para visionar', quien:'Asistente distribución', sale:'Creación carpetas y fichas para visionar' },
+      { title:'Identificación artistas', que:'Carpetas y fichas para visionar', quien:'Asistente distribución', sale:'Identificación de artistas' },
+      { title:'Visionar', que:'Identificación de artistas', quien:'Asistente distribución', sale:'Visionar producción' },
+      { title:'Información a imputar', que:'Visionar producción', quien:'Asistente distribución', sale:'Información a imputar' },
+    ],
+    bottleneck:{ type:'branch', origin:'Identificación de artistas', items:['Personajes sin información','Créditos incompletos'] }
+  },
+  {
+    id:'imputacion', num:4, name:'Imputación', accent:'--s4',
+    summary:{que:'Información a imputar', quien:'Asistente distribución', sale:'Categoría en Thespis'},
+    steps:[
+      { title:'Fichas de imputación', que:'Información a imputar', quien:'Asistente distribución', sale:'Creación fichas de imputación' },
+      { title:'Imputación', que:'Fichas de imputación', quien:'Asistente distribución', sale:'Información imputada' },
+      { title:'Categoría en Thespis', que:'Información imputada', quien:'Asistente distribución', sale:'Categoría en Thespis' },
+    ],
+    bottleneck:{ type:'chain', label:'CUELLO DE BOTELLA / REPROCESO', items:['Confirmar la obra en Thespis','Validar que no hayan duplicados'] }
+  },
+];
+
+const iconArrow = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+const iconArrowLeft = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>`;
+const iconBranch = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 3v10a4 4 0 0 0 4 4h4M18 3v6"/><circle cx="18" cy="14" r="3"/></svg>`;
+const iconWarn = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L14.7 3.86a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+
+/* ---------------- ROUTING ---------------- */
+let currentStage = 0;
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'instant' in document.documentElement.style ? 'instant' : 'auto'});
+}
+
+function goHero(){ showScreen('screen-hero'); }
+function goOverview(){ showScreen('screen-overview'); }
+function goDetail(idx){
+  currentStage = idx;
+  renderDetail(idx);
+  showScreen('screen-detail');
+}
+
+/* ---------------- RENDER: HERO PREVIEW ---------------- */
+document.getElementById('hero-preview').innerHTML = STAGES.map((s,i)=>
+  `<button type="button" data-idx="${i}" style="--hp-accent:var(${s.accent})"><span class="chip"></span><b>0${s.num}</b> ${s.name}</button>`
+).join('');
+
+document.querySelectorAll('#hero-preview button').forEach(btn=>{
+  btn.addEventListener('click', ()=> goDetail(parseInt(btn.dataset.idx)));
+});
+
+/* ---------------- RENDER: OVERVIEW ---------------- */
+const pipelineEl = document.getElementById('pipeline');
+let pipelineHTML = '';
+STAGES.forEach((s,i)=>{
+  pipelineHTML += `
+    <button class="stage-card" data-idx="${i}" style="--accent-card:var(${s.accent})">
+      <div class="stage-num mono"><span class="chip" style="background:var(${s.accent})"></span><span>ETAPA 0${s.num}</span></div>
+      <h3>${s.name}</h3>
+      <div class="stage-field"><b>Sale:</b> ${s.summary.sale}</div>
+      <div class="stage-goto">Ver desglose ${iconArrow}</div>
+    </button>`;
+});
+pipelineEl.innerHTML =
+  `<div class="pipeline-connector">${STAGES.slice(1).map(()=>`<span>${iconArrow}</span>`).join('')}</div>` +
+  pipelineHTML;
+
+pipelineEl.querySelectorAll('.stage-card').forEach(card=>{
+  card.addEventListener('click', ()=> goDetail(parseInt(card.dataset.idx)));
+});
+
+/* ---------------- RENDER: DETAIL ---------------- */
+function renderDetail(idx){
+  const s = STAGES[idx];
+  document.documentElement.style.setProperty('--accent', `var(${s.accent})`);
+  document.getElementById('brand-dot').style.background = `var(${s.accent})`;
+
+  let stepsHTML = '';
+  s.steps.forEach((step,i)=>{
+    stepsHTML += `
+      <div class="flow-item">
+        <div class="flow-row">
+          <div class="flow-rail">
+            <div class="flow-node-dot mono" style="border-color:var(${s.accent})">${i+1}</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-card">
+            <h5>${step.title}</h5>
+            <div class="flow-grid mono">
+              <div><b>Qué</b><span style="font-family:'Space Grotesk'">${step.que}</span></div>
+              <div><b>Quién</b><span style="font-family:'Space Grotesk'">${step.quien}</span></div>
+              <div><b>Sale</b><span style="font-family:'Space Grotesk'">${step.sale}</span></div>
+            </div>
+          </div>
+        </div>
+        ${step.branch ? `
+        <div class="branch-wrap">
+          <div class="branch-tag mono">${iconBranch} ${step.branch.label}</div>
+          <div class="flow-card">
+            <h5>${step.branch.title}</h5>
+            <div class="flow-grid mono">
+              <div><b>Qué</b><span style="font-family:'Space Grotesk'">${step.branch.que}</span></div>
+              <div><b>Quién</b><span style="font-family:'Space Grotesk'">${step.branch.quien}</span></div>
+              <div><b>Sale</b><span style="font-family:'Space Grotesk'">${step.branch.sale}</span></div>
+            </div>
+          </div>
+        </div>` : ''}
+      </div>`;
+  });
+
+  let bnHTML = '';
+  if(s.bottleneck.type === 'chain'){
+    bnHTML = `<div class="bottleneck-chain">` + s.bottleneck.items.map((it,i)=>
+      (i>0 ? `<div class="bn-arrow">${iconArrow}</div>` : '') + `<div class="bn-card">${it}</div>`
+    ).join('') + `</div>`;
+  } else {
+    bnHTML = `
+      <div class="bn-card" style="margin-bottom:0.9rem; max-width:340px;"><b class="mono" style="font-size:0.66rem;letter-spacing:.06em;opacity:.7;display:block;margin-bottom:.3rem;">ORIGEN</b>${s.bottleneck.origin}</div>
+      <div class="bn-branches">${s.bottleneck.items.map(it=>`<div class="bn-card">${it}</div>`).join('')}</div>`;
+  }
+
+  const prev = idx>0 ? STAGES[idx-1] : null;
+  const next = idx<STAGES.length-1 ? STAGES[idx+1] : null;
+
+  document.getElementById('detail-wrap').innerHTML = `
+    <div class="detail-head fade-in">
+      <div class="detail-crumbs">
+        ${STAGES.map((st,i)=>`<button class="crumb-dot ${i===idx?'active':''}" style="${i===idx?`background:var(${st.accent});border-color:var(${st.accent})`:''}" data-idx="${i}" aria-label="${st.name}"></button>`).join('')}
+      </div>
+      <div class="detail-eyebrow mono">ETAPA 0${s.num} DE 0${STAGES.length} · <b style="color:var(${s.accent})">${s.name.toUpperCase()}</b></div>
+      <h2>${s.name}</h2>
+      <div class="io-strip">
+        <div class="io-cell"><span class="lbl mono">QUÉ</span><span class="val">${s.summary.que}</span></div>
+        <div class="io-cell"><span class="lbl mono">QUIÉN</span><span class="val">${s.summary.quien}</span></div>
+        <div class="io-cell"><span class="lbl mono">SALE</span><span class="val">${s.summary.sale}</span></div>
+      </div>
+    </div>
+
+    <div class="flow-section">
+      <h4>Desglose del proceso</h4>
+      <div class="flow-chain">${stepsHTML}</div>
+    </div>
+
+    <div class="bottleneck">
+      <div class="bottleneck-head">${iconWarn}<span class="mono">${s.bottleneck.label || 'CUELLO DE BOTELLA'}</span></div>
+      ${bnHTML}
+    </div>
+
+    <div class="detail-nav">
+      <button class="nav-btn prev" ${prev ? '' : 'disabled'} id="nav-prev">
+        ${iconArrowLeft}
+        <span>${prev ? `<span class="nb-lbl mono">ANTERIOR</span><span class="nb-name">${prev.name}</span>` : ''}</span>
+      </button>
+      <button class="nav-btn next" ${next ? '' : 'disabled'} id="nav-next">
+        <span>${next ? `<span class="nb-lbl mono">SIGUIENTE</span><span class="nb-name">${next.name}</span>` : ''}</span>
+        ${iconArrow}
+      </button>
+    </div>
+  `;
+
+  document.querySelectorAll('.crumb-dot').forEach(d=>{
+    d.addEventListener('click', ()=> goDetail(parseInt(d.dataset.idx)));
+  });
+  const navPrev = document.getElementById('nav-prev');
+  const navNext = document.getElementById('nav-next');
+  if(navPrev) navPrev.addEventListener('click', ()=> prev && goDetail(idx-1));
+  if(navNext) navNext.addEventListener('click', ()=> next && goDetail(idx+1));
+}
+
+/* ---------------- NAV WIRES ---------------- */
+document.getElementById('btn-enter').addEventListener('click', goOverview);
+document.getElementById('brand-home').addEventListener('click', goHero);
+document.getElementById('brand-home-2').addEventListener('click', goHero);
+document.getElementById('btn-overview').addEventListener('click', goOverview);
+
+document.addEventListener('keydown', (e)=>{
+  const detailActive = document.getElementById('screen-detail').classList.contains('active');
+  if(!detailActive) return;
+  if(e.key === 'ArrowRight' && currentStage < STAGES.length-1) goDetail(currentStage+1);
+  if(e.key === 'ArrowLeft' && currentStage > 0) goDetail(currentStage-1);
+  if(e.key === 'Escape') goOverview();
+});
+
+/* ---------------- BACKGROUND WAVEFORM (one-time draw) ---------------- */
+(function(){
+  const svg = document.getElementById('bg-wave');
+  const W = 1000, H = 300;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  let bars = '';
+  const n = 90;
+  for(let i=0;i<n;i++){
+    const x = (i/n)*W;
+    const h = 6 + Math.abs(Math.sin(i*0.4)) * 40 + Math.random()*18;
+    const y = H - h;
+    bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(W/n*0.45).toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="url(#gwave)" opacity="0"><animate attributeName="opacity" from="0" to="1" begin="${(i*0.012).toFixed(2)}s" dur="0.6s" fill="freeze"/></rect>`;
+  }
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="gwave" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%" stop-color="#5EE6D0" stop-opacity="0.10"/>
+        <stop offset="100%" stop-color="#6FAEEA" stop-opacity="0.16"/>
+      </linearGradient>
+    </defs>
+    <g>${bars}</g>`;
+  svg.style.position='fixed'; svg.style.left=0; svg.style.right=0; svg.style.bottom=0;
+  svg.style.width='100%'; svg.style.height='34vh';
+})();
+</script>
+</body>
+</html>
