@@ -9,23 +9,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --void:#0A0B10;
-    --panel:#14161F;
-    --panel-alt:#1B1E2B;
-    --panel-line: rgba(255,255,255,0.07);
-    --text:#EDEEF2;
-    --muted:#8B90A0;
-    --dim:#565B6B;
+    --void:#0B0908;
+    --panel:#181310;
+    --panel-alt:#231C15;
+    --panel-line: rgba(255,255,255,0.09);
+    --text:#FAF6EF;
+    --muted:#BDB2A3;
+    --dim:#786C5F;
 
-    --s1:#5EE6D0; --s1-soft:#274842;
-    --s2:#B7E36B; --s2-soft:#33401f;
-    --s3:#6FAEEA; --s3-soft:#20344a;
-    --s4:#E8B86D; --s4-soft:#453623;
+    --orange:#FF6A1A;
+    --orange-light:#FF9A4D;
+    --orange-deep:#D6480F;
+    --orange-soft: rgba(255,106,26,0.14);
 
-    --danger:#E5484D; --danger-soft:#3a1f22;
+    --s1:#FF7A29;
+    --s2:#FF9A4D;
+    --s3:#FF5C1A;
+    --s4:#FFB35C;
 
-    --accent: var(--s1);
-    --accent-soft: var(--s1-soft);
+    --accent-card: var(--orange);
 
     box-sizing:border-box;
     padding-top: env(safe-area-inset-top, 0px);
@@ -47,21 +49,19 @@
   }
 
   .mono{ font-family:'IBM Plex Mono', monospace; }
+  .val-sans{ font-family:'Space Grotesk', sans-serif; color:var(--muted); display:block; }
 
-  /* background texture: faint waveform */
-  #bg-wave{
-    position:fixed; inset:0; z-index:0; opacity:0.35; pointer-events:none;
-  }
-
+  #bg-wave{ position:fixed; inset:0; z-index:0; opacity:0.3; pointer-events:none; }
   #app{ position:relative; z-index:1; min-height:100%; }
 
-  /* ---------- SCREENS ---------- */
-  .screen{
-    display:none;
-    min-height:100vh;
-    min-height:100dvh;
-  }
+  .screen{ display:none; min-height:100vh; min-height:100dvh; }
   .screen.active{ display:block; }
+
+  /* ---------- clapper stripe motif ---------- */
+  .clapper-stripe{
+    height:9px; border-radius:3px;
+    background:repeating-linear-gradient(45deg, var(--orange) 0 9px, #070502 9px 18px);
+  }
 
   /* ---------- HERO ---------- */
   #screen-hero{
@@ -74,15 +74,16 @@
   }
   #screen-hero.active{ display:flex; }
 
-  .hero-eyebrow{
-    font-size:0.78rem; letter-spacing:0.14em;
-    color:var(--dim);
-    margin-bottom:1.6rem;
-  }
+  .hero-clapper{ width:30px; height:30px; color:var(--orange); margin-bottom:1.4rem; }
+  .hero-clapper svg{ width:100%; height:100%; }
+
+  .hero-eyebrow{ font-size:0.78rem; letter-spacing:0.14em; color:var(--dim); margin-bottom:1.4rem; }
   .hero-eyebrow b{ color:var(--muted); font-weight:600; }
 
+  .clapper-stripe.hero{ width:100px; margin:0 auto 1.8rem; }
+
   h1.hero-title{
-    font-size:clamp(2.4rem, 7vw, 5.2rem);
+    font-size:clamp(2.6rem, 8vw, 5.6rem);
     line-height:1.02;
     font-weight:700;
     margin:0;
@@ -91,39 +92,31 @@
   }
   h1.hero-title .line2{
     display:block;
-    background:linear-gradient(90deg,var(--s1),var(--s3));
+    background:linear-gradient(100deg,var(--orange-light),var(--orange));
     -webkit-background-clip:text;
     background-clip:text;
     color:transparent;
   }
 
-  .hero-sub{
-    margin:1.8rem 0 3rem;
-    max-width:46ch;
-    color:var(--muted);
-    font-size:1.05rem;
-    line-height:1.55;
-  }
-
   .btn-primary{
     appearance:none; border:none; cursor:pointer;
-    background:var(--text); color:var(--void);
-    font-family:inherit; font-weight:600; font-size:1rem;
-    padding:1rem 2rem; border-radius:100px;
+    background:var(--orange); color:#100b08;
+    font-family:inherit; font-weight:700; font-size:1rem;
+    padding:1rem 2.1rem; border-radius:100px;
     display:inline-flex; align-items:center; gap:0.6rem;
-    transition:transform 0.15s ease, box-shadow 0.15s ease;
-    box-shadow:0 0 0 0 rgba(237,238,242,0);
+    margin-top:3rem;
+    transition:transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    box-shadow:0 0 0 0 rgba(255,106,26,0);
   }
-  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 30px -8px rgba(237,238,242,0.35); }
+  .btn-primary:hover{ background:var(--orange-light); transform:translateY(-2px); box-shadow:0 14px 34px -10px rgba(255,106,26,0.55); }
   .btn-primary:active{ transform:translateY(0); }
   .btn-primary svg{ width:16px; height:16px; transition:transform 0.15s ease; }
   .btn-primary:hover svg{ transform:translateX(3px); }
 
   .hero-preview{
-    margin-top:4.5rem;
+    margin-top:4rem;
     display:flex; flex-wrap:wrap; justify-content:center; gap:0.5rem 0;
-    font-size:0.78rem;
-    color:var(--dim);
+    font-size:0.78rem; color:var(--dim);
   }
   .hero-preview button{
     all:unset; cursor:pointer;
@@ -134,22 +127,19 @@
   }
   .hero-preview button:last-child{ border-right:none; }
   .hero-preview button b{ color:var(--muted); font-weight:500; transition:color 0.15s ease; }
-  .hero-preview button .chip{
-    width:6px; height:6px; border-radius:50%; background:var(--dim);
-    flex:none; transition:background 0.15s ease, box-shadow 0.15s ease;
-  }
+  .hero-preview button .chip{ width:6px; height:6px; border-radius:50%; background:var(--dim); flex:none; transition:background 0.15s ease, box-shadow 0.15s ease; }
   .hero-preview button:hover{ color:var(--hp-accent); }
   .hero-preview button:hover b{ color:var(--hp-accent); }
-  .hero-preview button:hover .chip{ background:var(--hp-accent); box-shadow:0 0 0 4px color-mix(in srgb, var(--hp-accent) 20%, transparent); }
+  .hero-preview button:hover .chip{ background:var(--hp-accent); box-shadow:0 0 0 4px color-mix(in srgb, var(--hp-accent) 22%, transparent); }
   .hero-preview button:focus-visible{ outline:2px solid var(--hp-accent); outline-offset:3px; border-radius:6px; }
 
-  /* ---------- HEADER (overview + detail) ---------- */
+  /* ---------- TOPBAR ---------- */
   .topbar{
     display:flex; align-items:center; justify-content:space-between;
     padding:1.4rem clamp(1.2rem,4vw,3rem);
     border-bottom:1px solid var(--panel-line);
     position:sticky; top:0; z-index:20;
-    background:rgba(10,11,16,0.82);
+    background:rgba(11,9,8,0.85);
     backdrop-filter:blur(10px);
   }
   .topbar-title{
@@ -157,7 +147,8 @@
     display:flex; align-items:center; gap:0.6rem;
     cursor:pointer; background:none; border:none; color:var(--text); font-family:inherit;
   }
-  .topbar-title .dot{ width:8px; height:8px; border-radius:50%; background:var(--s1); flex:none; }
+  .topbar-title .ticon{ width:16px; height:16px; flex:none; display:flex; }
+  .topbar-title .ticon svg{ width:100%; height:100%; }
   .topbar-link{
     font-size:0.85rem; color:var(--muted); text-decoration:none;
     display:flex; align-items:center; gap:0.4rem;
@@ -167,26 +158,20 @@
   .topbar-link:hover{ background:var(--panel); color:var(--text); }
   .topbar-link svg{ width:14px; height:14px; }
 
-  /* ---------- OVERVIEW (pipeline) ---------- */
+  /* ---------- OVERVIEW ---------- */
   #screen-overview .wrap{
     max-width:1180px; margin:0 auto;
     padding:clamp(2.2rem,6vw,4.5rem) clamp(1.2rem,4vw,3rem) 6rem;
   }
-  .overview-heading{ max-width:60ch; margin-bottom:3.2rem; }
-  .overview-heading h2{
-    font-size:clamp(1.6rem,3.6vw,2.3rem); margin:0 0 0.8rem; font-weight:600; letter-spacing:-0.01em;
-  }
-  .overview-heading p{ color:var(--muted); line-height:1.6; margin:0; font-size:1rem; }
+  .overview-heading{ max-width:60ch; margin:0 auto 3.2rem; text-align:center; }
+  .overview-heading .clapper-stripe{ width:60px; margin:0 auto 1.1rem; }
+  .overview-heading h2{ font-size:clamp(1.7rem,3.8vw,2.4rem); margin:0 0 0.8rem; font-weight:700; letter-spacing:-0.01em; }
+  .overview-heading p{ color:var(--muted); line-height:1.6; margin:0 auto; font-size:1rem; max-width:52ch; }
 
-  .pipeline{
-    display:grid; grid-template-columns:repeat(4,1fr);
-    gap:0; position:relative;
-  }
+  .pipeline{ display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative; }
   .pipeline-connector{
     grid-column:1/-1; display:flex; justify-content:space-between;
-    padding:0 clamp(1.1rem,2.6vw,2.3rem);
-    margin:-1.55rem 0 1.4rem;
-    pointer-events:none;
+    padding:0 clamp(1.1rem,2.6vw,2.3rem); margin:-1.55rem 0 1.4rem; pointer-events:none;
   }
   .pipeline-connector svg{ width:34px; height:14px; color:var(--dim); }
   @media (max-width:880px){
@@ -195,16 +180,9 @@
   }
 
   .stage-card{
-    background:var(--panel);
-    border:1px solid var(--panel-line);
-    border-radius:18px;
-    padding:1.7rem 1.5rem;
-    text-align:left;
-    cursor:pointer;
-    font-family:inherit;
-    color:var(--text);
-    display:flex; flex-direction:column; gap:0.9rem;
-    position:relative;
+    background:var(--panel); border:1px solid var(--panel-line); border-radius:18px;
+    padding:1.7rem 1.5rem; text-align:left; cursor:pointer; font-family:inherit; color:var(--text);
+    display:flex; flex-direction:column; gap:0.85rem; position:relative;
     transition:border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
   }
   @media (min-width:881px){
@@ -216,171 +194,150 @@
   .stage-card:hover{ background:var(--panel-alt); transform:translateY(-3px); }
   .stage-card:focus-visible{ outline:2px solid var(--accent-card); outline-offset:2px; }
 
-  .stage-num{
-    font-size:0.72rem; letter-spacing:0.08em;
-    display:flex; align-items:center; gap:0.5rem;
+  .stage-icon{
+    width:36px; height:36px; border-radius:10px; background:var(--panel-alt);
+    display:flex; align-items:center; justify-content:center; flex:none;
   }
-  .stage-num .chip{
-    width:9px; height:9px; border-radius:2px;
-  }
-  .stage-num span{ color:var(--dim); }
+  .stage-icon svg{ width:18px; height:18px; }
 
+  .stage-num{ font-size:0.72rem; letter-spacing:0.08em; color:var(--dim); }
   .stage-card h3{ margin:0; font-size:1.15rem; font-weight:600; line-height:1.25; }
-
   .stage-field{ font-size:0.8rem; color:var(--muted); line-height:1.5; }
   .stage-field b{ color:var(--dim); font-weight:500; }
-
-  .stage-goto{
-    margin-top:auto; padding-top:0.4rem;
-    font-size:0.8rem; color:var(--dim);
-    display:flex; align-items:center; gap:0.35rem;
-  }
+  .stage-goto{ margin-top:auto; padding-top:0.4rem; font-size:0.8rem; color:var(--dim); display:flex; align-items:center; gap:0.35rem; }
   .stage-card:hover .stage-goto{ color:var(--text); }
   .stage-goto svg{ width:13px; height:13px; transition:transform 0.15s ease; }
   .stage-card:hover .stage-goto svg{ transform:translateX(3px); }
 
   /* ---------- DETAIL ---------- */
-  #screen-detail .wrap{
-    max-width:1040px; margin:0 auto;
-    padding:clamp(1.8rem,5vw,3.2rem) clamp(1.2rem,4vw,3rem) 7rem;
-  }
-
+  #screen-detail .wrap{ max-width:1100px; margin:0 auto; padding:clamp(1.8rem,5vw,3.2rem) clamp(1.2rem,4vw,3rem) 7rem; }
   .detail-head{ margin-bottom:2.6rem; }
-  .detail-crumbs{
-    display:flex; align-items:center; gap:0.5rem; margin-bottom:1.3rem;
-  }
+  .detail-crumbs{ display:flex; align-items:center; gap:0.5rem; margin-bottom:1.4rem; }
   .crumb-dot{
     width:8px; height:8px; border-radius:50%; background:var(--panel-alt);
-    border:1px solid var(--panel-line); cursor:pointer; padding:0; transition:background 0.15s ease, border-color .15s ease, transform .15s ease;
+    border:1px solid var(--panel-line); cursor:pointer; padding:0;
+    transition:background 0.15s ease, border-color .15s ease, transform .15s ease;
   }
   .crumb-dot.active{ background:var(--accent-card); border-color:var(--accent-card); transform:scale(1.25); }
 
-  .detail-eyebrow{ font-size:0.78rem; color:var(--dim); margin-bottom:0.6rem; letter-spacing:0.03em; }
+  .clapper-stripe.detail{ width:56px; margin-bottom:1.1rem; }
+  .detail-title-row{ display:flex; align-items:center; gap:1rem; }
+  .detail-icon{ width:48px; height:48px; border-radius:12px; background:var(--panel-alt); display:flex; align-items:center; justify-content:center; flex:none; }
+  .detail-icon svg{ width:24px; height:24px; }
+  .detail-eyebrow{ font-size:0.78rem; color:var(--dim); margin-bottom:0.4rem; letter-spacing:0.03em; }
   .detail-eyebrow b{ color:var(--accent-card); font-weight:600; }
   .detail-head h2{ font-size:clamp(1.7rem,4vw,2.5rem); margin:0; font-weight:700; letter-spacing:-0.01em; }
+  .detail-tagline{ margin:0.9rem 0 0; color:var(--muted); font-style:italic; font-size:0.98rem; max-width:55ch; }
 
   .io-strip{
-    display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
-    background:var(--panel-line);
-    border:1px solid var(--panel-line); border-radius:14px; overflow:hidden;
-    margin-top:1.8rem;
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--panel-line);
+    border:1px solid var(--panel-line); border-radius:14px; overflow:hidden; margin-top:1.8rem;
   }
   .io-cell{ background:var(--panel); padding:1rem 1.2rem; }
-  .io-cell .lbl{ font-size:0.68rem; color:var(--dim); letter-spacing:0.08em; margin-bottom:0.4rem; display:block;}
+  .io-cell .lbl{ font-size:0.68rem; color:var(--dim); letter-spacing:0.08em; margin-bottom:0.4rem; display:block; }
   .io-cell .val{ font-size:0.88rem; line-height:1.4; }
   @media (max-width:640px){ .io-strip{ grid-template-columns:1fr; } }
 
-  /* flow chain */
   .flow-section{ margin-top:3.4rem; }
-  .flow-section > h4{
-    font-size:0.78rem; letter-spacing:0.08em; color:var(--dim); margin:0 0 1.4rem;
-    display:flex; align-items:center; gap:0.6rem;
-  }
+  .flow-section > h4{ font-size:0.78rem; letter-spacing:0.08em; color:var(--dim); margin:0 0 1.4rem; display:flex; align-items:center; gap:0.6rem; }
   .flow-section > h4::after{ content:''; flex:1; height:1px; background:var(--panel-line); }
 
-  .flow-chain{
-    display:flex; flex-direction:column; gap:0;
+  .flow-chain-h{ display:flex; align-items:flex-start; gap:0.9rem; flex-wrap:wrap; }
+  @media (max-width:640px){
+    .flow-chain-h{ flex-wrap:nowrap; overflow-x:auto; padding-bottom:0.7rem; margin:0 -1.2rem; padding-left:1.2rem; padding-right:1.2rem; }
   }
-  .flow-item{ position:relative; }
-  .flow-row{ display:flex; align-items:stretch; gap:1.1rem; }
-  .flow-rail{
-    width:26px; flex:none; display:flex; flex-direction:column; align-items:center;
-  }
-  .flow-node-dot{
-    width:26px; height:26px; border-radius:50%;
-    background:var(--panel-alt); border:1px solid var(--panel-line);
-    display:flex; align-items:center; justify-content:center;
-    font-size:0.68rem; font-weight:600; color:var(--muted);
-    flex:none;
-  }
-  .flow-line{ width:1px; flex:1; background:var(--panel-line); min-height:1rem; }
-  .flow-item:last-child .flow-line{ display:none; }
 
-  .flow-card{
-    flex:1; background:var(--panel); border:1px solid var(--panel-line);
-    border-radius:14px; padding:1.15rem 1.3rem; margin-bottom:1.1rem;
+  .step-card{
+    background:var(--panel); border:1px solid var(--panel-line); border-radius:16px;
+    padding:1.4rem 1.4rem 1.25rem; width:280px; flex:0 0 auto;
+    display:flex; flex-direction:column; gap:0.85rem; position:relative;
   }
-  .flow-card h5{ margin:0 0 0.7rem; font-size:1rem; font-weight:600; }
-  .flow-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:0.6rem 1rem; }
-  @media (max-width:560px){ .flow-grid{ grid-template-columns:1fr; } }
-  .flow-grid div{ font-size:0.8rem; color:var(--muted); line-height:1.45; }
-  .flow-grid b{ display:block; font-size:0.66rem; letter-spacing:0.07em; color:var(--dim); margin-bottom:0.2rem; font-weight:500; }
+  @media (max-width:640px){ .step-card{ width:78vw; max-width:320px; } }
+  .step-card-top{ display:flex; align-items:center; justify-content:space-between; gap:0.6rem; }
+  .step-index{
+    width:28px; height:28px; border-radius:50%; border:1px solid var(--accent-card); color:var(--accent-card);
+    display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:600; flex:none;
+  }
+  .step-card h5{ margin:0; font-size:1.02rem; font-weight:600; line-height:1.3; }
+  .flow-grid{ display:grid; grid-template-columns:1fr; gap:0.55rem; }
+  .flow-grid div{ font-size:0.8rem; }
+  .flow-grid b{ display:block; font-size:0.62rem; letter-spacing:0.08em; color:var(--dim); margin-bottom:0.15rem; font-weight:500; font-family:'IBM Plex Mono',monospace; }
 
-  .branch-wrap{
-    margin:0.7rem 0 1.1rem 3.7rem;
-    padding-left:1.1rem;
-    border-left:2px dashed var(--panel-line);
+  .btn-chip-secondary{
+    all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:0.35rem;
+    font-family:'IBM Plex Mono',monospace; font-size:0.62rem; letter-spacing:.04em; color:var(--dim);
+    border:1px solid var(--panel-line); padding:0.3rem 0.55rem; border-radius:100px;
+    transition:color .15s ease, border-color .15s ease;
   }
-  .branch-tag{
-    font-size:0.68rem; color:var(--dim); letter-spacing:0.06em; margin-bottom:0.5rem;
-    display:flex; align-items:center; gap:0.4rem;
-  }
+  .btn-chip-secondary svg{ width:11px; height:11px; }
+  .btn-chip-secondary:hover, .btn-chip-secondary.active{ color:var(--orange); border-color:var(--orange); }
+
+  .branch-panel{ display:none; }
+  .branch-panel.open{ display:block; animation:fadeIn 0.3s ease both; }
+  .branch-panel-inner{ background:var(--panel-alt); border:1px dashed var(--panel-line); border-radius:12px; padding:1rem 1.1rem; margin-top:0.2rem; }
+  .branch-panel-inner h6{ margin:0 0 0.6rem; font-size:0.88rem; font-weight:600; color:var(--orange); }
+  .branch-tag{ font-size:0.62rem; letter-spacing:.06em; color:var(--dim); display:flex; align-items:center; gap:0.4rem; margin-bottom:0.6rem; }
   .branch-tag svg{ width:12px; height:12px; }
-  .branch-wrap .flow-card{ background:var(--panel-alt); }
+
+  .btn-next-step{
+    all:unset; cursor:pointer; margin-top:0.2rem; padding-top:0.9rem; border-top:1px solid var(--panel-line);
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace; font-size:0.72rem; letter-spacing:.03em; color:var(--orange);
+  }
+  .btn-next-step svg{ width:14px; height:14px; transition:transform .15s ease; }
+  .btn-next-step:hover svg{ transform:translateX(3px); }
+
+  .step-connector{ display:flex; align-items:center; color:var(--dim); flex:none; padding-top:1.7rem; }
+  .step-connector svg{ width:20px; height:20px; }
+
+  .step-complete{ margin-top:1.4rem; display:flex; align-items:center; gap:0.55rem; font-size:0.8rem; color:var(--orange); }
+  .step-complete svg{ width:17px; height:17px; }
 
   /* bottleneck */
-  .bottleneck{
-    margin-top:3.2rem;
-    background:var(--danger-soft);
-    border:1px solid rgba(229,72,77,0.35);
-    border-radius:16px;
-    padding:1.6rem 1.7rem 1.8rem;
-  }
-  .bottleneck-head{ display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem; }
-  .bottleneck-head svg{ width:17px; height:17px; color:var(--danger); flex:none; }
-  .bottleneck-head span{ font-size:0.78rem; letter-spacing:0.09em; color:#f2b0b2; font-weight:600; }
+  .bottleneck{ margin-top:3.4rem; background:var(--panel-alt); border:1px solid var(--panel-line); border-radius:16px; padding:1.5rem 1.6rem 1.7rem; }
+  .bottleneck-toggle{ all:unset; cursor:pointer; display:flex; align-items:center; gap:0.75rem; width:100%; }
+  .bottleneck-toggle .bn-icon{ color:var(--orange); flex:none; display:flex; width:18px; height:18px; }
+  .bottleneck-toggle .bn-icon svg{ width:100%; height:100%; }
+  .bottleneck-toggle .bn-toggle-label{ font-family:'IBM Plex Mono',monospace; font-size:0.78rem; letter-spacing:.07em; color:var(--text); font-weight:600; }
+  .bottleneck-toggle .chev{ margin-left:auto; color:var(--dim); transition:transform .2s ease; flex:none; width:16px; height:16px; }
+  .bottleneck-toggle .chev svg{ width:100%; height:100%; }
+
+  #bottleneck-panel{ display:none; }
+  #bottleneck-panel.open{ display:block; margin-top:1.3rem; }
 
   .bottleneck-chain{ display:flex; flex-wrap:wrap; align-items:stretch; gap:0.7rem; }
-  .bn-card{
-    background:rgba(0,0,0,0.18); border:1px solid rgba(229,72,77,0.25);
-    border-radius:10px; padding:0.85rem 1rem; font-size:0.85rem; color:#f0d6d6;
-    line-height:1.45; flex:1; min-width:180px;
-  }
-  .bn-arrow{ display:flex; align-items:center; color:rgba(229,72,77,0.55); flex:none; }
+  .bn-card{ background:var(--panel); border:1px solid var(--panel-line); border-radius:10px; padding:0.85rem 1rem; font-size:0.85rem; color:var(--muted); line-height:1.45; flex:1; min-width:180px; }
+  .bn-arrow{ display:flex; align-items:center; color:var(--dim); flex:none; }
   .bn-arrow svg{ width:16px; height:16px; }
   @media (max-width:640px){ .bn-arrow svg{ transform:rotate(90deg); } .bottleneck-chain{ flex-direction:column; } }
-
   .bn-branches{ display:flex; gap:0.8rem; flex-wrap:wrap; }
   .bn-branches .bn-card{ flex:1; min-width:200px; }
+  .bn-pop{ animation:bnPop 0.4s ease both; }
+  @keyframes bnPop{ from{ opacity:0; transform:translateY(8px) scale(0.98);} to{ opacity:1; transform:translateY(0) scale(1);} }
 
   /* footer nav */
-  .detail-nav{
-    display:flex; align-items:center; justify-content:space-between; gap:1rem;
-    margin-top:3.6rem; padding-top:2rem; border-top:1px solid var(--panel-line);
-  }
+  .detail-nav{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:3.6rem; padding-top:2rem; border-top:1px solid var(--panel-line); }
   .nav-btn{
-    background:var(--panel); border:1px solid var(--panel-line); color:var(--text);
-    font-family:inherit; cursor:pointer; border-radius:12px;
-    padding:0.85rem 1.1rem; display:flex; align-items:center; gap:0.7rem;
+    background:var(--panel); border:1px solid var(--panel-line); color:var(--text); font-family:inherit;
+    cursor:pointer; border-radius:12px; padding:0.85rem 1.1rem; display:flex; align-items:center; gap:0.7rem;
     max-width:46%; text-align:left; transition:background 0.15s ease, border-color 0.15s ease;
   }
-  .nav-btn:hover{ background:var(--panel-alt); }
+  .nav-btn:hover{ background:var(--panel-alt); border-color:var(--orange); }
   .nav-btn:disabled{ opacity:0.3; pointer-events:none; }
   .nav-btn.next{ margin-left:auto; text-align:right; flex-direction:row-reverse; }
   .nav-btn svg{ width:16px; height:16px; flex:none; color:var(--dim); }
   .nav-btn .nb-lbl{ font-size:0.68rem; color:var(--dim); letter-spacing:0.06em; display:block; margin-bottom:0.15rem; }
   .nav-btn .nb-name{ font-size:0.9rem; font-weight:600; }
 
-  ::selection{ background:var(--accent-card); color:#0A0B10; }
+  ::selection{ background:var(--orange); color:#0B0908; }
 
   .fade-in{ animation:fadeIn 0.35s ease both; }
   @keyframes fadeIn{ from{ opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
 
   #version-badge{
-    position:fixed;
-    right:calc(14px + env(safe-area-inset-right, 0px));
-    bottom:calc(12px + env(safe-area-inset-bottom, 0px));
-    font-size:0.66rem;
-    color:var(--dim);
-    opacity:0.5;
-    letter-spacing:0.02em;
-    z-index:50;
-    pointer-events:none;
-    background:rgba(10,11,16,0.55);
-    padding:0.25rem 0.55rem;
-    border-radius:100px;
-    border:1px solid var(--panel-line);
-    backdrop-filter:blur(4px);
+    position:fixed; right:calc(14px + env(safe-area-inset-right, 0px)); bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+    font-size:0.66rem; color:var(--dim); opacity:0.55; letter-spacing:0.02em; z-index:50; pointer-events:none;
+    background:rgba(11,9,8,0.6); padding:0.25rem 0.55rem; border-radius:100px; border:1px solid var(--panel-line); backdrop-filter:blur(4px);
   }
   @media (max-width:560px){ #version-badge{ font-size:0.6rem; } }
 </style>
@@ -395,9 +352,10 @@
 
   <!-- HERO -->
   <section id="screen-hero" class="screen active">
+    <div class="hero-clapper" id="hero-clapper-icon"></div>
     <div class="hero-eyebrow mono">PROCESO INTERNO · DISTRIBUCIÓN <b>· 4 ETAPAS</b></div>
+    <div class="clapper-stripe hero"></div>
     <h1 class="hero-title">Proceso de visionado<span class="line2">de doblaje</span></h1>
-    <p class="hero-sub">De la base de emisiones bruta hasta la categoría final en Thespis: el recorrido completo de cada obra doblada, con sus responsables, entregables y cuellos de botella.</p>
     <button class="btn-primary" id="btn-enter">
       Ver las 4 etapas
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -409,13 +367,14 @@
   <section id="screen-overview" class="screen">
     <div class="topbar">
       <button class="topbar-title" id="brand-home">
-        <span class="dot"></span> Visionado de doblaje
+        <span class="ticon" id="brand-ticon-1"></span> Visionado de doblaje
       </button>
       <span class="topbar-link" style="cursor:default;">Vista general</span>
     </div>
     <div class="wrap">
       <div class="overview-heading fade-in">
-        <h2>Cuatro etapas, un mismo flujo</h2>
+        <div class="clapper-stripe"></div>
+        <h2>Etapas Visionado De Doblaje</h2>
         <p>Cada etapa recibe lo que entrega la anterior. Elige una para ver su desglose completo, responsables y cuellos de botella.</p>
       </div>
       <div class="pipeline" id="pipeline"></div>
@@ -426,7 +385,7 @@
   <section id="screen-detail" class="screen">
     <div class="topbar">
       <button class="topbar-title" id="brand-home-2">
-        <span class="dot" id="brand-dot"></span> Visionado de doblaje
+        <span class="ticon" id="brand-ticon-2"></span> Visionado de doblaje
       </button>
       <button class="topbar-link" id="btn-overview">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -440,161 +399,237 @@
 
 <script>
 /* ---------------- VERSIÓN DEL SITIO ---------------- */
-/* Edita estas dos líneas cada vez que subas cambios significativos */
-const SITE_VERSION = 'v1.1';
-const SITE_UPDATED  = '26 sep 2026';
-document.getElementById('version-badge').textContent = `${SITE_VERSION} · ${SITE_UPDATED}`;
+const SITE_VERSION = 'v2.0';
+const SITE_UPDATED  = '29 sep 2026';
+document.getElementById('version-badge').textContent = SITE_VERSION + ' · ' + SITE_UPDATED;
+
+/* ---------------- ICONOS (tema: producción / doblaje) ---------------- */
+const iconArrow = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+const iconArrowLeft = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>`;
+const iconBranch = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 3v10a4 4 0 0 0 4 4h4M18 3v6"/><circle cx="18" cy="14" r="3"/></svg>`;
+const iconCheck = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>`;
+const iconChevron = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>`;
+const iconClapper = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l1.5-4h4L7 8"/><path d="M8.7 8L10.2 4h4l-1.5 4"/><path d="M14.4 8l1.5-4h4L18.4 8"/><rect x="3" y="8" width="18" height="12" rx="1.5"/><line x1="3" y1="8" x2="21" y2="8"/></svg>`;
+const iconFilter = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16l-6.2 7.6V18l-3.6 2v-8.4L4 4z"/></svg>`;
+const iconFolder = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>`;
+const iconHeadphones = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13a9 9 0 0 1 18 0"/><rect x="2.5" y="13" width="5" height="7" rx="1.5"/><rect x="16.5" y="13" width="5" height="7" rx="1.5"/></svg>`;
+const iconTag = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.5L12.5 20 3 10.5V3h7.5L20 12.5z"/><circle cx="7.6" cy="7.6" r="1.3" fill="currentColor" stroke="none"/></svg>`;
+const iconHourglass = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12M6 22h12M6 2c0 5 4 6 6 8-2 2-6 3-6 8M18 2c0 5-4 6-6 8 2 2 6 3 6 8"/></svg>`;
+
+const ICONS = { filter:iconFilter, folder:iconFolder, headphones:iconHeadphones, tag:iconTag };
 
 /* ---------------- DATA (extraído del mapa mental) ---------------- */
 const STAGES = [
   {
-    id:'limpiar', num:1, name:'Limpiar emisiones', accent:'--s1',
-    summary:{que:'Base emisiones', quien:'Julie', sale:'Base de datos de obras para asignación'},
+    id:'limpiar', num:1, name:'Limpiar emisiones', icon:'filter', accent:'--s1',
+    tagline:'Donde el caos de las emisiones se convierte en datos utilizables.',
+    summary:{entrada:'Base emisiones', responsable:'Julie', resultado:'Base de datos de obras para asignación'},
     steps:[
-      { title:'Base de emisiones limpia', que:'Base emisiones', quien:'Julie', sale:'Base de emisiones limpia' },
-      { title:'Base de emisiones clasificadas', que:'Base de emisiones limpia', quien:'Julie', sale:'Base de emisiones clasificadas',
-        branch:{ label:'Salida paralela', title:'Volcado', que:'Base de emisiones clasificadas', quien:'Asistente de Distribución', sale:'Volcado de emisiones en Thespis' } },
-      { title:'Obras con doblaje colombiano', que:'Base de emisiones clasificadas', quien:'Julie', sale:'Identificación obras protegidas',
-        branch:{ label:'Salida paralela', title:'Base para proveedor', que:'Identificación obras protegidas', quien:'Julie', sale:'Envío base obras protegidas a proveedor para ajuste' } },
-      { title:'Base para asignación de obras', que:'Identificación obras protegidas', quien:'Julie', sale:'Base de datos de obras para asignación' },
+      { title:'Base de emisiones limpia', entrada:'Base emisiones', responsable:'Julie', resultado:'Base de emisiones limpia' },
+      { title:'Base de emisiones clasificadas', entrada:'Base de emisiones limpia', responsable:'Julie', resultado:'Base de emisiones clasificadas',
+        branch:{ title:'Volcado', entrada:'Base de emisiones clasificadas', responsable:'Asistente de Distribución', resultado:'Volcado de emisiones en Thespis' } },
+      { title:'Obras con doblaje colombiano', entrada:'Base de emisiones clasificadas', responsable:'Julie', resultado:'Identificación obras protegidas',
+        branch:{ title:'Base para proveedor', entrada:'Identificación obras protegidas', responsable:'Julie', resultado:'Envío base obras protegidas a proveedor para ajuste' } },
+      { title:'Base para asignación de obras', entrada:'Identificación obras protegidas', responsable:'Julie', resultado:'Base de datos de obras para asignación' },
     ],
     bottleneck:{ type:'chain', items:['Limpieza base de datos de las emisiones','Mega bases sin un dato confiable para gestionar con más agilidad','Gestión manual'] }
   },
   {
-    id:'asignacion', num:2, name:'Asignación de obras', accent:'--s2',
-    summary:{que:'Base de datos de obras para asignación', quien:'Julie', sale:'Asignación de obras para visionar'},
+    id:'asignacion', num:2, name:'Asignación de obras', icon:'folder', accent:'--s2',
+    tagline:'Cada obra encuentra su lugar en la fila de espera.',
+    summary:{entrada:'Base de datos de obras para asignación', responsable:'Julie', resultado:'Asignación de obras para visionar'},
     steps:[
-      { title:'Creación carpetas', que:'Base de datos de obras para asignación', quien:'Julie', sale:'Creación archivos por canales' },
-      { title:'Obras pendientes por visionar', que:'Archivos por canales', quien:'Julie', sale:'Identificación de obras pendientes por visionar' },
-      { title:'Contenidos para visionar', que:'Obras pendientes por visionar', quien:'Julie', sale:'Obtención material para visionar' },
-      { title:'Asignación de obras', que:'Material para visionar', quien:'Julie', sale:'Asignación de obras para visionar (planner)' },
+      { title:'Creación carpetas', entrada:'Base de datos de obras para asignación', responsable:'Julie', resultado:'Creación archivos por canales' },
+      { title:'Obras pendientes por visionar', entrada:'Archivos por canales', responsable:'Julie', resultado:'Identificación de obras pendientes por visionar' },
+      { title:'Contenidos para visionar', entrada:'Obras pendientes por visionar', responsable:'Julie', resultado:'Obtención material para visionar' },
+      { title:'Asignación de obras', entrada:'Material para visionar', responsable:'Julie', resultado:'Asignación de obras para visionar (planner)' },
     ],
     bottleneck:{ type:'chain', items:['No encontrar contenido para visionar','Al buscar en internet, páginas, apps, canales de YouTube y emisión enviada por el canal, no se encuentra el contenido','No se puede visionar hasta que el proveedor envíe el contenido'] }
   },
   {
-    id:'visionado', num:3, name:'Visionado', accent:'--s3',
-    summary:{que:'Asignación de obras para visionar', quien:'Asistente distribución', sale:'Información para imputar'},
+    id:'visionado', num:3, name:'Visionado', icon:'headphones', accent:'--s3',
+    tagline:'El oído y el ojo hacen su trabajo, cuadro a cuadro.',
+    summary:{entrada:'Asignación de obras para visionar', responsable:'Asistente distribución', resultado:'Información para imputar'},
     steps:[
-      { title:'Creación carpetas y fichas', que:'Asignación de obras para visionar', quien:'Asistente distribución', sale:'Creación carpetas y fichas para visionar' },
-      { title:'Identificación artistas', que:'Carpetas y fichas para visionar', quien:'Asistente distribución', sale:'Identificación de artistas' },
-      { title:'Visionar', que:'Identificación de artistas', quien:'Asistente distribución', sale:'Visionar producción' },
-      { title:'Información a imputar', que:'Visionar producción', quien:'Asistente distribución', sale:'Información a imputar' },
+      { title:'Creación carpetas y fichas', entrada:'Asignación de obras para visionar', responsable:'Asistente distribución', resultado:'Creación carpetas y fichas para visionar' },
+      { title:'Identificación artistas', entrada:'Carpetas y fichas para visionar', responsable:'Asistente distribución', resultado:'Identificación de artistas' },
+      { title:'Visionar', entrada:'Identificación de artistas', responsable:'Asistente distribución', resultado:'Visionar producción' },
+      { title:'Información a imputar', entrada:'Visionar producción', responsable:'Asistente distribución', resultado:'Información a imputar' },
     ],
     bottleneck:{ type:'branch', origin:'Identificación de artistas', items:['Personajes sin información','Créditos incompletos'] }
   },
   {
-    id:'imputacion', num:4, name:'Imputación', accent:'--s4',
-    summary:{que:'Información a imputar', quien:'Asistente distribución', sale:'Categoría en Thespis'},
+    id:'imputacion', num:4, name:'Imputación', icon:'tag', accent:'--s4',
+    tagline:'El cierre: cada voz queda registrada en su categoría.',
+    summary:{entrada:'Información a imputar', responsable:'Asistente distribución', resultado:'Categoría en Thespis'},
     steps:[
-      { title:'Fichas de imputación', que:'Información a imputar', quien:'Asistente distribución', sale:'Creación fichas de imputación' },
-      { title:'Imputación', que:'Fichas de imputación', quien:'Asistente distribución', sale:'Información imputada' },
-      { title:'Categoría en Thespis', que:'Información imputada', quien:'Asistente distribución', sale:'Categoría en Thespis' },
+      { title:'Fichas de imputación', entrada:'Información a imputar', responsable:'Asistente distribución', resultado:'Creación fichas de imputación' },
+      { title:'Imputación', entrada:'Fichas de imputación', responsable:'Asistente distribución', resultado:'Información imputada' },
+      { title:'Categoría en Thespis', entrada:'Información imputada', responsable:'Asistente distribución', resultado:'Categoría en Thespis' },
     ],
     bottleneck:{ type:'chain', label:'CUELLO DE BOTELLA / REPROCESO', items:['Confirmar la obra en Thespis','Validar que no hayan duplicados'] }
   },
 ];
 
-const iconArrow = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
-const iconArrowLeft = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>`;
-const iconBranch = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 3v10a4 4 0 0 0 4 4h4M18 3v6"/><circle cx="18" cy="14" r="3"/></svg>`;
-const iconWarn = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L14.7 3.86a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+/* ---------------- ESTADO ---------------- */
+let currentStage = 0;
+let stepReveal = 1;
 
 /* ---------------- ROUTING ---------------- */
-let currentStage = 0;
-
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  window.scrollTo({top:0, behavior:'instant' in document.documentElement.style ? 'instant' : 'auto'});
+  window.scrollTo(0,0);
 }
-
 function goHero(){ showScreen('screen-hero'); }
 function goOverview(){ showScreen('screen-overview'); }
 function goDetail(idx){
   currentStage = idx;
+  stepReveal = 1;
   renderDetail(idx);
   showScreen('screen-detail');
 }
 
-/* ---------------- RENDER: HERO PREVIEW ---------------- */
+/* ---------------- BRAND ICONS ---------------- */
+document.getElementById('hero-clapper-icon').innerHTML = iconClapper;
+document.getElementById('brand-ticon-1').innerHTML = iconClapper;
+document.getElementById('brand-ticon-2').innerHTML = iconClapper;
+
+/* ---------------- HERO PREVIEW LIST ---------------- */
 document.getElementById('hero-preview').innerHTML = STAGES.map((s,i)=>
   `<button type="button" data-idx="${i}" style="--hp-accent:var(${s.accent})"><span class="chip"></span><b>0${s.num}</b> ${s.name}</button>`
 ).join('');
-
 document.querySelectorAll('#hero-preview button').forEach(btn=>{
   btn.addEventListener('click', ()=> goDetail(parseInt(btn.dataset.idx)));
 });
 
-/* ---------------- RENDER: OVERVIEW ---------------- */
+/* ---------------- OVERVIEW ---------------- */
 const pipelineEl = document.getElementById('pipeline');
 let pipelineHTML = '';
 STAGES.forEach((s,i)=>{
   pipelineHTML += `
     <button class="stage-card" data-idx="${i}" style="--accent-card:var(${s.accent})">
-      <div class="stage-num mono"><span class="chip" style="background:var(${s.accent})"></span><span>ETAPA 0${s.num}</span></div>
+      <div class="stage-icon" style="color:var(${s.accent})">${ICONS[s.icon]}</div>
+      <div class="stage-num mono">ETAPA 0${s.num}</div>
       <h3>${s.name}</h3>
-      <div class="stage-field"><b>Sale:</b> ${s.summary.sale}</div>
+      <div class="stage-field"><b>Resultado:</b> ${s.summary.resultado}</div>
       <div class="stage-goto">Ver desglose ${iconArrow}</div>
     </button>`;
 });
 pipelineEl.innerHTML =
   `<div class="pipeline-connector">${STAGES.slice(1).map(()=>`<span>${iconArrow}</span>`).join('')}</div>` +
   pipelineHTML;
-
 pipelineEl.querySelectorAll('.stage-card').forEach(card=>{
   card.addEventListener('click', ()=> goDetail(parseInt(card.dataset.idx)));
 });
 
-/* ---------------- RENDER: DETAIL ---------------- */
-function renderDetail(idx){
-  const s = STAGES[idx];
-  document.documentElement.style.setProperty('--accent', `var(${s.accent})`);
-  document.getElementById('brand-dot').style.background = `var(${s.accent})`;
-
-  let stepsHTML = '';
-  s.steps.forEach((step,i)=>{
-    stepsHTML += `
-      <div class="flow-item">
-        <div class="flow-row">
-          <div class="flow-rail">
-            <div class="flow-node-dot mono" style="border-color:var(${s.accent})">${i+1}</div>
-            <div class="flow-line"></div>
-          </div>
-          <div class="flow-card">
-            <h5>${step.title}</h5>
-            <div class="flow-grid mono">
-              <div><b>Qué</b><span style="font-family:'Space Grotesk'">${step.que}</span></div>
-              <div><b>Quién</b><span style="font-family:'Space Grotesk'">${step.quien}</span></div>
-              <div><b>Sale</b><span style="font-family:'Space Grotesk'">${step.sale}</span></div>
-            </div>
+/* ---------------- DETAIL: PASOS HORIZONTALES PROGRESIVOS ---------------- */
+function stepCardHTML(step, i, s, isLast, hasMore){
+  return `
+    <div class="step-card fade-in" style="--accent-card:var(${s.accent})">
+      <div class="step-card-top">
+        <span class="step-index mono">0${i+1}</span>
+        ${step.branch ? `<button class="btn-chip-secondary" data-branch="${i}">${iconBranch} Proceso secundario</button>` : ''}
+      </div>
+      <h5>${step.title}</h5>
+      <div class="flow-grid mono">
+        <div><b>Entrada</b><span class="val-sans">${step.entrada}</span></div>
+        <div><b>Responsable</b><span class="val-sans">${step.responsable}</span></div>
+        <div><b>Resultado</b><span class="val-sans">${step.resultado}</span></div>
+      </div>
+      ${step.branch ? `
+      <div class="branch-panel" id="branch-panel-${i}">
+        <div class="branch-panel-inner">
+          <div class="branch-tag mono">${iconBranch} PROCESO SECUNDARIO</div>
+          <h6>${step.branch.title}</h6>
+          <div class="flow-grid mono">
+            <div><b>Entrada</b><span class="val-sans">${step.branch.entrada}</span></div>
+            <div><b>Responsable</b><span class="val-sans">${step.branch.responsable}</span></div>
+            <div><b>Resultado</b><span class="val-sans">${step.branch.resultado}</span></div>
           </div>
         </div>
-        ${step.branch ? `
-        <div class="branch-wrap">
-          <div class="branch-tag mono">${iconBranch} ${step.branch.label}</div>
-          <div class="flow-card">
-            <h5>${step.branch.title}</h5>
-            <div class="flow-grid mono">
-              <div><b>Qué</b><span style="font-family:'Space Grotesk'">${step.branch.que}</span></div>
-              <div><b>Quién</b><span style="font-family:'Space Grotesk'">${step.branch.quien}</span></div>
-              <div><b>Sale</b><span style="font-family:'Space Grotesk'">${step.branch.sale}</span></div>
-            </div>
-          </div>
-        </div>` : ''}
-      </div>`;
-  });
+      </div>` : ''}
+      ${isLast && hasMore ? `<button class="btn-next-step mono" data-next="1">Ver siguiente paso ${iconArrow}</button>` : ''}
+    </div>`;
+}
 
-  let bnHTML = '';
-  if(s.bottleneck.type === 'chain'){
-    bnHTML = `<div class="bottleneck-chain">` + s.bottleneck.items.map((it,i)=>
-      (i>0 ? `<div class="bn-arrow">${iconArrow}</div>` : '') + `<div class="bn-card">${it}</div>`
-    ).join('') + `</div>`;
-  } else {
-    bnHTML = `
-      <div class="bn-card" style="margin-bottom:0.9rem; max-width:340px;"><b class="mono" style="font-size:0.66rem;letter-spacing:.06em;opacity:.7;display:block;margin-bottom:.3rem;">ORIGEN</b>${s.bottleneck.origin}</div>
-      <div class="bn-branches">${s.bottleneck.items.map(it=>`<div class="bn-card">${it}</div>`).join('')}</div>`;
+function buildStepsHTML(s){
+  let html = '';
+  for(let i=0; i<stepReveal; i++){
+    const isLast = (i === stepReveal-1);
+    const hasMore = stepReveal < s.steps.length;
+    html += stepCardHTML(s.steps[i], i, s, isLast, hasMore);
+    if(i < stepReveal-1) html += `<div class="step-connector">${iconArrow}</div>`;
   }
+  return html;
+}
 
+function refreshSteps(s){
+  const container = document.getElementById('flow-chain-h');
+  container.innerHTML = buildStepsHTML(s);
+
+  container.querySelectorAll('.btn-next-step').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      stepReveal = Math.min(stepReveal+1, s.steps.length);
+      refreshSteps(s);
+      const done = document.getElementById('step-complete-msg');
+      if(done) done.remove();
+      if(stepReveal >= s.steps.length){
+        const flowSection = document.querySelector('.flow-section');
+        const msg = document.createElement('div');
+        msg.className = 'step-complete';
+        msg.id = 'step-complete-msg';
+        msg.innerHTML = iconCheck + ' Etapa completa — toda la información está arriba';
+        flowSection.appendChild(msg);
+      }
+    });
+  });
+  container.querySelectorAll('.btn-chip-secondary').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const panel = document.getElementById('branch-panel-'+btn.dataset.branch);
+      const open = panel.classList.toggle('open');
+      btn.classList.toggle('active', open);
+    });
+  });
+}
+
+/* ---------------- DETAIL: CUELLO DE BOTELLA ---------------- */
+function buildBottleneckItemsHTML(s){
+  if(s.bottleneck.type === 'chain'){
+    return `<div class="bottleneck-chain">` + s.bottleneck.items.map((it,i)=>
+      (i>0 ? `<div class="bn-arrow">${iconArrow}</div>` : '') +
+      `<div class="bn-card bn-pop" style="animation-delay:${(i*0.09).toFixed(2)}s">${it}</div>`
+    ).join('') + `</div>`;
+  }
+  return `
+    <div class="bn-card bn-pop" style="margin-bottom:0.9rem; max-width:340px;">
+      <b class="mono" style="font-size:0.62rem;letter-spacing:.06em;opacity:.7;display:block;margin-bottom:.3rem;">ORIGEN</b>${s.bottleneck.origin}
+    </div>
+    <div class="bn-branches">${s.bottleneck.items.map((it,i)=>
+      `<div class="bn-card bn-pop" style="animation-delay:${((i+1)*0.09).toFixed(2)}s">${it}</div>`).join('')}</div>`;
+}
+
+function wireBottleneck(s){
+  const btn = document.getElementById('bottleneck-toggle');
+  const panel = document.getElementById('bottleneck-panel');
+  btn.addEventListener('click', ()=>{
+    const isOpen = panel.classList.contains('open');
+    if(isOpen){
+      panel.classList.remove('open');
+      btn.querySelector('.bn-toggle-label').textContent = 'Mostrar cuello de botella';
+      btn.querySelector('.chev').style.transform = 'rotate(0deg)';
+    } else {
+      panel.innerHTML = buildBottleneckItemsHTML(s);
+      panel.classList.add('open');
+      btn.querySelector('.bn-toggle-label').textContent = 'Ocultar cuello de botella';
+      btn.querySelector('.chev').style.transform = 'rotate(180deg)';
+    }
+  });
+}
+
+/* ---------------- RENDER DETAIL ---------------- */
+function renderDetail(idx){
+  const s = STAGES[idx];
   const prev = idx>0 ? STAGES[idx-1] : null;
   const next = idx<STAGES.length-1 ? STAGES[idx+1] : null;
 
@@ -603,23 +638,34 @@ function renderDetail(idx){
       <div class="detail-crumbs">
         ${STAGES.map((st,i)=>`<button class="crumb-dot ${i===idx?'active':''}" style="${i===idx?`background:var(${st.accent});border-color:var(${st.accent})`:''}" data-idx="${i}" aria-label="${st.name}"></button>`).join('')}
       </div>
-      <div class="detail-eyebrow mono">ETAPA 0${s.num} DE 0${STAGES.length} · <b style="color:var(${s.accent})">${s.name.toUpperCase()}</b></div>
-      <h2>${s.name}</h2>
+      <div class="clapper-stripe detail"></div>
+      <div class="detail-title-row">
+        <div class="detail-icon" style="color:var(${s.accent})">${ICONS[s.icon]}</div>
+        <div>
+          <div class="detail-eyebrow mono">ETAPA 0${s.num} DE 0${STAGES.length} · <b style="color:var(${s.accent})">${s.name.toUpperCase()}</b></div>
+          <h2>${s.name}</h2>
+        </div>
+      </div>
+      <p class="detail-tagline">${s.tagline}</p>
       <div class="io-strip">
-        <div class="io-cell"><span class="lbl mono">QUÉ</span><span class="val">${s.summary.que}</span></div>
-        <div class="io-cell"><span class="lbl mono">QUIÉN</span><span class="val">${s.summary.quien}</span></div>
-        <div class="io-cell"><span class="lbl mono">SALE</span><span class="val">${s.summary.sale}</span></div>
+        <div class="io-cell"><span class="lbl mono">ENTRADA</span><span class="val">${s.summary.entrada}</span></div>
+        <div class="io-cell"><span class="lbl mono">RESPONSABLE</span><span class="val">${s.summary.responsable}</span></div>
+        <div class="io-cell"><span class="lbl mono">RESULTADO</span><span class="val">${s.summary.resultado}</span></div>
       </div>
     </div>
 
     <div class="flow-section">
       <h4>Desglose del proceso</h4>
-      <div class="flow-chain">${stepsHTML}</div>
+      <div class="flow-chain-h" id="flow-chain-h"></div>
     </div>
 
     <div class="bottleneck">
-      <div class="bottleneck-head">${iconWarn}<span class="mono">${s.bottleneck.label || 'CUELLO DE BOTELLA'}</span></div>
-      ${bnHTML}
+      <button class="bottleneck-toggle" id="bottleneck-toggle">
+        <span class="bn-icon">${iconHourglass}</span>
+        <span class="bn-toggle-label mono">${s.bottleneck.label ? 'MOSTRAR: ' + s.bottleneck.label : 'MOSTRAR CUELLO DE BOTELLA'}</span>
+        <span class="chev">${iconChevron}</span>
+      </button>
+      <div id="bottleneck-panel"></div>
     </div>
 
     <div class="detail-nav">
@@ -633,6 +679,9 @@ function renderDetail(idx){
       </button>
     </div>
   `;
+
+  refreshSteps(s);
+  wireBottleneck(s);
 
   document.querySelectorAll('.crumb-dot').forEach(d=>{
     d.addEventListener('click', ()=> goDetail(parseInt(d.dataset.idx)));
@@ -657,7 +706,7 @@ document.addEventListener('keydown', (e)=>{
   if(e.key === 'Escape') goOverview();
 });
 
-/* ---------------- BACKGROUND WAVEFORM (one-time draw) ---------------- */
+/* ---------------- FONDO: ONDA DE AUDIO (tonos naranja) ---------------- */
 (function(){
   const svg = document.getElementById('bg-wave');
   const W = 1000, H = 300;
@@ -673,8 +722,8 @@ document.addEventListener('keydown', (e)=>{
   svg.innerHTML = `
     <defs>
       <linearGradient id="gwave" x1="0" y1="1" x2="0" y2="0">
-        <stop offset="0%" stop-color="#5EE6D0" stop-opacity="0.10"/>
-        <stop offset="100%" stop-color="#6FAEEA" stop-opacity="0.16"/>
+        <stop offset="0%" stop-color="#FF6A1A" stop-opacity="0.10"/>
+        <stop offset="100%" stop-color="#FFB35C" stop-opacity="0.18"/>
       </linearGradient>
     </defs>
     <g>${bars}</g>`;
