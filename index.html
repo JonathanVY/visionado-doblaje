@@ -399,7 +399,7 @@
 
 <script>
 /* ---------------- VERSIÓN DEL SITIO ---------------- */
-const SITE_VERSION = 'v2.0';
+const SITE_VERSION = 'v2.1';
 const SITE_UPDATED  = '29 sep 2026';
 document.getElementById('version-badge').textContent = SITE_VERSION + ' · ' + SITE_UPDATED;
 
@@ -512,6 +512,8 @@ STAGES.forEach((s,i)=>{
       <div class="stage-icon" style="color:var(${s.accent})">${ICONS[s.icon]}</div>
       <div class="stage-num mono">ETAPA 0${s.num}</div>
       <h3>${s.name}</h3>
+      <div class="stage-field"><b>Entrada:</b> ${s.summary.entrada}</div>
+      <div class="stage-field"><b>Responsable:</b> ${s.summary.responsable}</div>
       <div class="stage-field"><b>Resultado:</b> ${s.summary.resultado}</div>
       <div class="stage-goto">Ver desglose ${iconArrow}</div>
     </button>`;
