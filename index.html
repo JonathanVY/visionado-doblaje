@@ -166,8 +166,8 @@
 
   /* ---------- OVERVIEW ---------- */
   #screen-overview .wrap{
-    max-width:1180px; margin:0 auto;
-    padding:clamp(2.2rem,6vw,4.5rem) clamp(1.2rem,4vw,3rem) 6rem;
+    max-width:min(1440px, 94vw); margin:0 auto; position:relative;
+    padding:clamp(2.2rem,6vw,4.5rem) clamp(1.2rem,4vw,3rem) clamp(3rem,8vh,5rem);
   }
   .overview-heading{ max-width:60ch; margin:0 auto 3.2rem; text-align:center; }
   .overview-heading .clapper-stripe{ width:60px; margin:0 auto 1.1rem; }
@@ -221,7 +221,7 @@
   .stage-card:hover .stage-goto svg{ transform:translateX(3px); }
 
   /* ---------- DETAIL ---------- */
-  #screen-detail .wrap{ max-width:1100px; margin:0 auto; padding:clamp(1.8rem,5vw,3.2rem) clamp(1.2rem,4vw,3rem) 7rem; }
+  #screen-detail .wrap{ max-width:min(1320px, 94vw); margin:0 auto; position:relative; padding:clamp(1.8rem,5vw,3.2rem) clamp(1.2rem,4vw,3rem) clamp(3rem,10vh,6rem); }
   .detail-head{ margin-bottom:2.6rem; }
   .detail-crumbs{ display:flex; align-items:center; gap:0.5rem; margin-bottom:1.4rem; }
   .crumb-dot{
@@ -265,7 +265,7 @@
     box-shadow:var(--shadow-card);
   }
   @media (max-width:640px){ .step-card{ width:78vw; max-width:320px; } }
-  .step-card-top{ display:flex; align-items:center; justify-content:space-between; gap:0.6rem; }
+  .step-card-top{ display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap; }
   .step-index{
     width:28px; height:28px; border-radius:50%; border:1px solid var(--accent-card); color:var(--accent-card);
     display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:600; flex:none;
@@ -352,6 +352,38 @@
     background:rgba(26,20,16,0.82); padding:0.25rem 0.55rem; border-radius:100px; border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(4px);
   }
   @media (max-width:560px){ #version-badge{ font-size:0.6rem; } }
+
+  /* ---------- iconos decorativos de fondo ---------- */
+  .decor-icon{ position:absolute; pointer-events:none; color:var(--text); opacity:0.065; z-index:-1; transition:opacity 0.4s ease; }
+  .decor-icon svg{ width:100%; height:100%; display:block; }
+  @media (max-width:760px){ .decor-icon{ display:none; } }
+
+  /* ---------- chip que vincula un paso con su cuello de botella / reproceso ---------- */
+  .step-flag{
+    display:inline-flex; align-items:center; gap:0.3rem;
+    font-family:'IBM Plex Mono',monospace; font-size:0.58rem; letter-spacing:.05em;
+    padding:0.28rem 0.5rem; border-radius:100px; white-space:nowrap;
+  }
+  .step-flag svg{ width:11px; height:11px; flex:none; }
+  .step-flag.cuello{ color:var(--orange-deep); background:rgba(232,89,15,0.08); border:1px solid rgba(232,89,15,0.3); }
+  .step-flag.reproceso{ color:var(--text); background:var(--panel-alt); border:1px solid var(--panel-line); }
+
+  .step-card.bn-highlight{ animation:bnGlowPulse 1.3s ease-in-out 1; }
+  .step-card.bn-highlight.cuello-highlight{ box-shadow:0 0 0 4px rgba(232,89,15,0.5), 0 0 40px 8px rgba(255,106,26,0.4), var(--shadow-card); border-color:var(--orange); }
+  .step-card.bn-highlight.reproceso-highlight{ box-shadow:0 0 0 4px rgba(26,20,16,0.4), 0 0 36px 8px rgba(26,20,16,0.22), var(--shadow-card); border-color:var(--text); }
+  @keyframes bnGlowPulse{
+    0%{ box-shadow:0 0 0 0 rgba(255,106,26,0), var(--shadow-card); }
+    45%{ box-shadow:0 0 0 10px rgba(255,106,26,0.3), 0 0 50px 14px rgba(255,106,26,0.3), var(--shadow-card); }
+    100%{ box-shadow:0 0 0 4px rgba(232,89,15,0.5), 0 0 40px 8px rgba(255,106,26,0.4), var(--shadow-card); }
+  }
+
+  .btn-bn-next{
+    all:unset; cursor:pointer; margin-top:0.9rem; padding-top:0.9rem; border-top:1px dashed var(--panel-line);
+    display:flex; align-items:center; gap:0.45rem;
+    font-family:'IBM Plex Mono',monospace; font-size:0.74rem; letter-spacing:.03em; color:var(--orange-deep);
+  }
+  .btn-bn-next svg{ width:14px; height:14px; transition:transform .15s ease; }
+  .btn-bn-next:hover svg{ transform:translateX(3px); }
 </style>
 </head>
 <body>
@@ -364,6 +396,8 @@
 
   <!-- HERO -->
   <section id="screen-hero" class="screen active">
+    <div class="decor-icon" id="decor-hero-1" style="width:340px;height:340px; top:-70px; left:-90px; transform:rotate(-12deg);"></div>
+    <div class="decor-icon" id="decor-hero-2" style="width:270px;height:270px; bottom:-60px; right:-70px; transform:rotate(9deg);"></div>
     <div class="hero-clapper" id="hero-clapper-icon"></div>
     <div class="hero-eyebrow mono">PROCESO INTERNO · DISTRIBUCIÓN <b>· 4 ETAPAS</b></div>
     <div class="clapper-stripe hero"></div>
@@ -384,6 +418,8 @@
       <span class="topbar-link" style="cursor:default;">Vista general</span>
     </div>
     <div class="wrap">
+      <div class="decor-icon" id="decor-overview-1" style="width:300px;height:300px; top:-30px; right:-60px; transform:rotate(13deg);"></div>
+      <div class="decor-icon" id="decor-overview-2" style="width:230px;height:230px; bottom:-10px; left:-60px; transform:rotate(-15deg);"></div>
       <div class="overview-heading fade-in">
         <div class="clapper-stripe"></div>
         <h2>Etapas Visionado De Doblaje</h2>
@@ -411,8 +447,8 @@
 
 <script>
 /* ---------------- VERSIÓN DEL SITIO ---------------- */
-const SITE_VERSION = 'v3.0';
-const SITE_UPDATED  = '30 sep 2026';
+const SITE_VERSION = 'v4.1';
+const SITE_UPDATED  = '01 oct 2026';
 document.getElementById('version-badge').textContent = SITE_VERSION + ' · ' + SITE_UPDATED;
 
 /* ---------------- ICONOS (tema: producción / doblaje) ---------------- */
@@ -427,6 +463,9 @@ const iconFolder = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const iconHeadphones = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13a9 9 0 0 1 18 0"/><rect x="2.5" y="13" width="5" height="7" rx="1.5"/><rect x="16.5" y="13" width="5" height="7" rx="1.5"/></svg>`;
 const iconTag = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.5L12.5 20 3 10.5V3h7.5L20 12.5z"/><circle cx="7.6" cy="7.6" r="1.3" fill="currentColor" stroke="none"/></svg>`;
 const iconHourglass = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12M6 22h12M6 2c0 5 4 6 6 8-2 2-6 3-6 8M18 2c0 5-4 6-6 8 2 2 6 3 6 8"/></svg>`;
+const iconLoop = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>`;
+const iconReel = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="7" r="1.3"/><circle cx="12" cy="17" r="1.3"/><circle cx="7" cy="12" r="1.3"/><circle cx="17" cy="12" r="1.3"/><circle cx="12" cy="12" r="2"/></svg>`;
+const iconSubtitle = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="14.5" x2="13" y2="14.5"/><line x1="6" y1="17.5" x2="17" y2="17.5"/></svg>`;
 
 const ICONS = { filter:iconFilter, folder:iconFolder, headphones:iconHeadphones, tag:iconTag };
 
@@ -444,7 +483,7 @@ const STAGES = [
         branch:{ title:'Base para proveedor', entrada:'Identificación obras protegidas', responsable:'Julie', resultado:'Envío base obras protegidas a proveedor para ajuste' } },
       { title:'Base para asignación de obras', entrada:'Identificación obras protegidas', responsable:'Julie', resultado:'Base de datos de obras para asignación' },
     ],
-    bottleneck:{ type:'chain', items:['Limpieza base de datos de las emisiones','Mega bases sin un dato confiable para gestionar con más agilidad','Gestión manual'] }
+    bottleneck:{ type:'chain', kind:'cuello', relatedStep:0, items:['Limpieza base de datos de las emisiones','Mega bases sin un dato confiable para gestionar con más agilidad','Gestión manual'] }
   },
   {
     id:'asignacion', num:2, name:'Asignación de obras', icon:'folder', accent:'--s2',
@@ -456,7 +495,7 @@ const STAGES = [
       { title:'Contenidos para visionar', entrada:'Obras pendientes por visionar', responsable:'Julie', resultado:'Obtención material para visionar' },
       { title:'Asignación de obras', entrada:'Material para visionar', responsable:'Julie', resultado:'Asignación de obras para visionar (planner)' },
     ],
-    bottleneck:{ type:'chain', items:['No encontrar contenido para visionar','Al buscar en internet, páginas, apps, canales de YouTube y emisión enviada por el canal, no se encuentra el contenido','No se puede visionar hasta que el proveedor envíe el contenido'] }
+    bottleneck:{ type:'chain', kind:'cuello', relatedStep:2, items:['No encontrar contenido para visionar','Al buscar en internet, páginas, apps, canales de YouTube y emisión enviada por el canal, no se encuentra el contenido','No se puede visionar hasta que el proveedor envíe el contenido'] }
   },
   {
     id:'visionado', num:3, name:'Visionado', icon:'headphones', accent:'--s3',
@@ -468,7 +507,7 @@ const STAGES = [
       { title:'Visionar', entrada:'Identificación de artistas', responsable:'Asistente distribución', resultado:'Visionar producción' },
       { title:'Información a imputar', entrada:'Visionar producción', responsable:'Asistente distribución', resultado:'Información a imputar' },
     ],
-    bottleneck:{ type:'branch', origin:'Identificación de artistas', items:['Personajes sin información','Créditos incompletos'] }
+    bottleneck:{ type:'branch', kind:'cuello', relatedStep:1, origin:'Identificación de artistas', items:['Personajes sin información','Créditos incompletos'] }
   },
   {
     id:'imputacion', num:4, name:'Imputación', icon:'tag', accent:'--s4',
@@ -479,7 +518,7 @@ const STAGES = [
       { title:'Imputación', entrada:'Fichas de imputación', responsable:'Asistente distribución', resultado:'Información imputada' },
       { title:'Categoría en Thespis', entrada:'Información imputada', responsable:'Asistente distribución', resultado:'Categoría en Thespis' },
     ],
-    bottleneck:{ type:'chain', label:'CUELLO DE BOTELLA / REPROCESO', items:['Confirmar la obra en Thespis','Validar que no hayan duplicados'] }
+    bottleneck:{ type:'chain', kind:'reproceso', relatedStep:2, items:['Confirmar la obra en Thespis','Validar que no hayan duplicados'] }
   },
 ];
 
@@ -498,6 +537,7 @@ function goOverview(){ showScreen('screen-overview'); }
 function goDetail(idx){
   currentStage = idx;
   stepReveal = 1;
+  bnReveal = 1;
   renderDetail(idx);
   showScreen('screen-detail');
 }
@@ -506,6 +546,12 @@ function goDetail(idx){
 document.getElementById('hero-clapper-icon').innerHTML = iconClapper;
 document.getElementById('brand-ticon-1').innerHTML = iconClapper;
 document.getElementById('brand-ticon-2').innerHTML = iconClapper;
+
+/* ---------------- ICONOS DECORATIVOS DE FONDO ---------------- */
+document.getElementById('decor-hero-1').innerHTML = iconReel;
+document.getElementById('decor-hero-2').innerHTML = iconSubtitle;
+document.getElementById('decor-overview-1').innerHTML = iconClapper;
+document.getElementById('decor-overview-2').innerHTML = iconReel;
 
 /* ---------------- HERO PREVIEW LIST ---------------- */
 document.getElementById('hero-preview').innerHTML = STAGES.map((s,i)=>
@@ -539,10 +585,16 @@ pipelineEl.querySelectorAll('.stage-card').forEach(card=>{
 
 /* ---------------- DETAIL: PASOS HORIZONTALES PROGRESIVOS ---------------- */
 function stepCardHTML(step, i, s, isLast, hasMore){
+  const isBnStep = s.bottleneck && s.bottleneck.relatedStep === i;
+  const bnKind = s.bottleneck ? s.bottleneck.kind : null;
+  const flagHTML = isBnStep
+    ? `<span class="step-flag ${bnKind}">${bnKind === 'reproceso' ? iconLoop : iconHourglass} ${bnKind === 'reproceso' ? 'Reproceso' : 'Cuello de botella'}</span>`
+    : '';
   return `
-    <div class="step-card fade-in" style="--accent-card:var(${s.accent})">
+    <div class="step-card fade-in" id="step-card-${i}" style="--accent-card:var(${s.accent})">
       <div class="step-card-top">
         <span class="step-index mono">0${i+1}</span>
+        ${flagHTML}
         ${step.branch ? `<button class="btn-chip-secondary" data-branch="${i}">${iconBranch} Proceso secundario</button>` : ''}
       </div>
       <h5>${step.title}</h5>
@@ -605,38 +657,94 @@ function refreshSteps(s){
       btn.classList.toggle('active', open);
     });
   });
+  reapplyBottleneckHighlight(s);
 }
 
-/* ---------------- DETAIL: CUELLO DE BOTELLA ---------------- */
+function reapplyBottleneckHighlight(s){
+  const panel = document.getElementById('bottleneck-panel');
+  if(!panel || !panel.classList.contains('open') || !s.bottleneck || s.bottleneck.relatedStep === undefined) return;
+  const card = document.getElementById('step-card-'+s.bottleneck.relatedStep);
+  if(card){
+    const kindClass = s.bottleneck.kind === 'reproceso' ? 'reproceso-highlight' : 'cuello-highlight';
+    card.classList.add('bn-highlight', kindClass);
+  }
+}
+
+/* ---------------- DETAIL: CUELLO DE BOTELLA (revelación progresiva) ---------------- */
+let bnReveal = 1;
+
 function buildBottleneckItemsHTML(s){
   if(s.bottleneck.type === 'chain'){
-    return `<div class="bottleneck-chain">` + s.bottleneck.items.map((it,i)=>
-      (i>0 ? `<div class="bn-arrow">${iconArrow}</div>` : '') +
-      `<div class="bn-card bn-pop" style="animation-delay:${(i*0.09).toFixed(2)}s">${it}</div>`
-    ).join('') + `</div>`;
+    const total = s.bottleneck.items.length;
+    let html = '<div class="bottleneck-chain">';
+    for(let i=0; i<bnReveal; i++){
+      if(i>0) html += `<div class="bn-arrow">${iconArrow}</div>`;
+      html += `<div class="bn-card bn-pop" style="animation-delay:${(i*0.07).toFixed(2)}s">${s.bottleneck.items[i]}</div>`;
+    }
+    html += '</div>';
+    if(bnReveal < total){
+      html += `<button class="btn-bn-next mono" id="btn-bn-next">Ver información complementaria ${iconArrow}</button>`;
+    }
+    return html;
   }
-  return `
+  // tipo branch (origen + resultados paralelos)
+  let html = `
     <div class="bn-card bn-pop" style="margin-bottom:0.9rem; max-width:340px;">
       <b class="mono" style="font-size:0.62rem;letter-spacing:.06em;opacity:.7;display:block;margin-bottom:.3rem;">ORIGEN</b>${s.bottleneck.origin}
-    </div>
-    <div class="bn-branches">${s.bottleneck.items.map((it,i)=>
-      `<div class="bn-card bn-pop" style="animation-delay:${((i+1)*0.09).toFixed(2)}s">${it}</div>`).join('')}</div>`;
+    </div>`;
+  if(bnReveal < 2){
+    html += `<button class="btn-bn-next mono" id="btn-bn-next">Ver información complementaria ${iconArrow}</button>`;
+  } else {
+    html += `<div class="bn-branches">${s.bottleneck.items.map((it,i)=>
+      `<div class="bn-card bn-pop" style="animation-delay:${(i*0.08).toFixed(2)}s">${it}</div>`).join('')}</div>`;
+  }
+  return html;
+}
+
+function refreshBottleneck(s){
+  const panel = document.getElementById('bottleneck-panel');
+  panel.innerHTML = buildBottleneckItemsHTML(s);
+  const btnNext = document.getElementById('btn-bn-next');
+  if(btnNext){
+    btnNext.addEventListener('click', ()=>{
+      const total = s.bottleneck.type === 'chain' ? s.bottleneck.items.length : 2;
+      bnReveal = Math.min(bnReveal+1, total);
+      refreshBottleneck(s);
+    });
+  }
 }
 
 function wireBottleneck(s){
   const btn = document.getElementById('bottleneck-toggle');
   const panel = document.getElementById('bottleneck-panel');
+  const kindLabel = s.bottleneck.kind === 'reproceso' ? 'REPROCESO' : 'CUELLO DE BOTELLA';
+  const relIdx = s.bottleneck.relatedStep;
+  const kindClass = s.bottleneck.kind === 'reproceso' ? 'reproceso-highlight' : 'cuello-highlight';
+
   btn.addEventListener('click', ()=>{
     const isOpen = panel.classList.contains('open');
     if(isOpen){
       panel.classList.remove('open');
-      btn.querySelector('.bn-toggle-label').textContent = 'Mostrar cuello de botella';
+      btn.querySelector('.bn-toggle-label').textContent = 'MOSTRAR ' + kindLabel;
       btn.querySelector('.chev').style.transform = 'rotate(0deg)';
+      if(relIdx !== undefined){
+        const card = document.getElementById('step-card-'+relIdx);
+        if(card) card.classList.remove('bn-highlight', kindClass);
+      }
     } else {
-      panel.innerHTML = buildBottleneckItemsHTML(s);
+      bnReveal = 1;
+      refreshBottleneck(s);
       panel.classList.add('open');
-      btn.querySelector('.bn-toggle-label').textContent = 'Ocultar cuello de botella';
+      btn.querySelector('.bn-toggle-label').textContent = 'OCULTAR ' + kindLabel;
       btn.querySelector('.chev').style.transform = 'rotate(180deg)';
+      if(relIdx !== undefined){
+        if(stepReveal <= relIdx){ stepReveal = relIdx + 1; refreshSteps(s); }
+        const card = document.getElementById('step-card-'+relIdx);
+        if(card){
+          card.classList.add('bn-highlight', kindClass);
+          card.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+        }
+      }
     }
   });
 }
@@ -648,6 +756,8 @@ function renderDetail(idx){
   const next = idx<STAGES.length-1 ? STAGES[idx+1] : null;
 
   document.getElementById('detail-wrap').innerHTML = `
+    <div class="decor-icon" style="width:320px;height:320px; top:-50px; right:-70px; transform:rotate(${idx % 2 === 0 ? 11 : -11}deg);">${ICONS[s.icon]}</div>
+    <div class="decor-icon" style="width:190px;height:190px; bottom:40px; left:-60px; transform:rotate(${idx % 2 === 0 ? -9 : 9}deg);">${iconReel}</div>
     <div class="detail-head fade-in">
       <div class="detail-crumbs">
         ${STAGES.map((st,i)=>`<button class="crumb-dot ${i===idx?'active':''}" style="${i===idx?`background:var(${st.accent});border-color:var(${st.accent})`:''}" data-idx="${i}" aria-label="${st.name}"></button>`).join('')}
@@ -675,8 +785,8 @@ function renderDetail(idx){
 
     <div class="bottleneck">
       <button class="bottleneck-toggle" id="bottleneck-toggle">
-        <span class="bn-icon">${iconHourglass}</span>
-        <span class="bn-toggle-label mono">${s.bottleneck.label ? 'MOSTRAR: ' + s.bottleneck.label : 'MOSTRAR CUELLO DE BOTELLA'}</span>
+        <span class="bn-icon">${s.bottleneck.kind === 'reproceso' ? iconLoop : iconHourglass}</span>
+        <span class="bn-toggle-label mono">MOSTRAR ${s.bottleneck.kind === 'reproceso' ? 'REPROCESO' : 'CUELLO DE BOTELLA'}</span>
         <span class="chev">${iconChevron}</span>
       </button>
       <div id="bottleneck-panel"></div>
