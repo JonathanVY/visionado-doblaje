@@ -30,10 +30,39 @@
     --accent-card: var(--orange);
 
     --shadow-card: 0 1px 2px rgba(26,20,16,0.04), 0 10px 26px -14px rgba(26,20,16,0.18);
+    --topbar-bg: rgba(251,246,239,0.86);
 
     box-sizing:border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* ---------- tema oscuro: "sala de proyección" ---------- */
+  :root[data-theme="dark"]{
+    --void:#0B0908;
+    --panel:#181310;
+    --panel-alt:#231C15;
+    --panel-line: rgba(255,255,255,0.09);
+    --text:#FAF6EF;
+    --muted:#BDB2A3;
+    --dim:#8C8072;
+
+    --orange:#FF6A1A;
+    --orange-light:#FF9A4D;
+    --orange-deep:#FFA15C;
+    --orange-soft: rgba(255,106,26,0.14);
+
+    --s1:#FF7A29;
+    --s2:#FF9A4D;
+    --s3:#FF5C1A;
+    --s4:#FFB35C;
+
+    --shadow-card: 0 1px 0 rgba(255,255,255,0.05), 0 12px 28px -16px rgba(0,0,0,0.55);
+    --topbar-bg: rgba(11,9,8,0.85);
+  }
+
+  body, .topbar, .stage-card, .step-card, .io-cell, .bn-card, .bottleneck, .branch-panel-inner, .nav-btn, #theme-toggle, #sound-toggle{
+    transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
   }
   *,*::before,*::after{ box-sizing:inherit; }
   html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
@@ -145,7 +174,7 @@
     padding:1.4rem clamp(1.2rem,4vw,3rem);
     border-bottom:1px solid var(--panel-line);
     position:sticky; top:0; z-index:20;
-    background:rgba(251,246,239,0.86);
+    background:var(--topbar-bg);
     backdrop-filter:blur(10px);
   }
   .topbar-title{
@@ -353,6 +382,26 @@
   }
   @media (max-width:560px){ #version-badge{ font-size:0.6rem; } }
 
+  /* ---------- controles flotantes: tema y sonido ---------- */
+  .floating-controls{
+    position:fixed; left:calc(14px + env(safe-area-inset-left, 0px)); top:calc(14px + env(safe-area-inset-top, 0px));
+    z-index:60; display:flex; gap:0.5rem;
+  }
+  #theme-toggle, #sound-toggle{
+    all:unset; cursor:pointer; display:flex; align-items:center; gap:0.4rem;
+    background:var(--panel); border:1px solid var(--panel-line); color:var(--text);
+    padding:0.5rem 0.65rem; border-radius:100px; box-shadow:var(--shadow-card);
+  }
+  #theme-toggle svg, #sound-toggle svg{ width:14px; height:14px; flex:none; }
+  #theme-toggle .tt-label{ font-family:'IBM Plex Mono',monospace; font-size:0.64rem; letter-spacing:.04em; }
+  @media (max-width:640px){ #theme-toggle .tt-label{ display:none; } #theme-toggle{ padding:0.5rem; } }
+
+  /* ---------- grano de película ---------- */
+  #grain-overlay{
+    position:fixed; inset:0; z-index:200; pointer-events:none;
+    mix-blend-mode:overlay; opacity:0.6;
+  }
+
   /* ---------- iconos decorativos de fondo ---------- */
   .decor-icon{ position:absolute; pointer-events:none; color:var(--text); opacity:0.065; z-index:-1; transition:opacity 0.4s ease; }
   .decor-icon svg{ width:100%; height:100%; display:block; }
@@ -389,6 +438,24 @@
 <body>
 
 <svg id="bg-wave" preserveAspectRatio="none"></svg>
+
+<svg width="0" height="0" style="position:absolute;">
+  <filter id="grainFilter">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" result="noise"/>
+    <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.045 0"/>
+  </filter>
+</svg>
+<div id="grain-overlay" style="filter:url(#grainFilter);"></div>
+
+<div class="floating-controls">
+  <button id="theme-toggle" title="Alternar mesa de luz / sala de proyección">
+    <span id="theme-toggle-icon"></span>
+    <span class="tt-label" id="theme-toggle-label">Mesa de luz</span>
+  </button>
+  <button id="sound-toggle" title="Silenciar/activar sonido">
+    <span id="sound-toggle-icon"></span>
+  </button>
+</div>
 
 <div id="app">
 
@@ -447,8 +514,8 @@
 
 <script>
 /* ---------------- VERSIÓN DEL SITIO ---------------- */
-const SITE_VERSION = 'v4.1';
-const SITE_UPDATED  = '01 oct 2026';
+const SITE_VERSION = 'v5.1';
+const SITE_UPDATED  = '02 oct 2026';
 document.getElementById('version-badge').textContent = SITE_VERSION + ' · ' + SITE_UPDATED;
 
 /* ---------------- ICONOS (tema: producción / doblaje) ---------------- */
@@ -466,6 +533,10 @@ const iconHourglass = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor
 const iconLoop = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>`;
 const iconReel = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="7" r="1.3"/><circle cx="12" cy="17" r="1.3"/><circle cx="7" cy="12" r="1.3"/><circle cx="17" cy="12" r="1.3"/><circle cx="12" cy="12" r="2"/></svg>`;
 const iconSubtitle = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="14.5" x2="13" y2="14.5"/><line x1="6" y1="17.5" x2="17" y2="17.5"/></svg>`;
+const iconSun = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>`;
+const iconMoon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>`;
+const iconSoundOn = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.3 5.7a9 9 0 0 1 0 12.6"/></svg>`;
+const iconSoundOff = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
 
 const ICONS = { filter:iconFilter, folder:iconFolder, headphones:iconHeadphones, tag:iconTag };
 
@@ -541,6 +612,69 @@ function goDetail(idx){
   renderDetail(idx);
   showScreen('screen-detail');
 }
+
+/* ---------------- TEMA: mesa de luz / sala de proyección ---------------- */
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const icon = document.getElementById('theme-toggle-icon');
+  const label = document.getElementById('theme-toggle-label');
+  if(theme === 'dark'){
+    icon.innerHTML = iconMoon;
+    label.textContent = 'Sala de proyección';
+  } else {
+    icon.innerHTML = iconSun;
+    label.textContent = 'Mesa de luz';
+  }
+  try{ localStorage.setItem('doblaje-theme', theme); }catch(e){}
+}
+let savedTheme = 'light';
+try{ savedTheme = localStorage.getItem('doblaje-theme') || 'light'; }catch(e){}
+applyTheme(savedTheme);
+document.getElementById('theme-toggle').addEventListener('click', ()=>{
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'light' ? 'dark' : 'light');
+});
+
+/* ---------------- SONIDO: claqueta sintetizada (sin archivos externos) ---------------- */
+let soundMuted = false;
+try{ soundMuted = localStorage.getItem('doblaje-muted') === '1'; }catch(e){}
+let audioCtx = null;
+function getAudioCtx(){
+  if(audioCtx) return audioCtx;
+  try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ audioCtx = null; }
+  return audioCtx;
+}
+function playClap(){
+  if(soundMuted) return;
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  if(ctx.state === 'suspended') ctx.resume();
+  const dur = 0.11;
+  const bufferSize = Math.floor(ctx.sampleRate * dur);
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1) * Math.pow(1 - i/bufferSize, 2.5); }
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass'; bp.frequency.value = 1600; bp.Q.value = 0.7;
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.55, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+  noise.connect(bp); bp.connect(gain); gain.connect(ctx.destination);
+  noise.start();
+  noise.stop(ctx.currentTime + dur);
+}
+function updateSoundIcon(){
+  document.getElementById('sound-toggle-icon').innerHTML = soundMuted ? iconSoundOff : iconSoundOn;
+}
+updateSoundIcon();
+document.getElementById('sound-toggle').addEventListener('click', ()=>{
+  soundMuted = !soundMuted;
+  try{ localStorage.setItem('doblaje-muted', soundMuted ? '1':'0'); }catch(e){}
+  updateSoundIcon();
+  if(!soundMuted) playClap();
+});
 
 /* ---------------- BRAND ICONS ---------------- */
 document.getElementById('hero-clapper-icon').innerHTML = iconClapper;
@@ -647,6 +781,7 @@ function refreshSteps(s){
         msg.id = 'step-complete-msg';
         msg.innerHTML = iconCheck + ' Etapa completa — toda la información está arriba';
         flowSection.appendChild(msg);
+        playClap();
       }
     });
   });
@@ -817,7 +952,7 @@ function renderDetail(idx){
 }
 
 /* ---------------- NAV WIRES ---------------- */
-document.getElementById('btn-enter').addEventListener('click', goOverview);
+document.getElementById('btn-enter').addEventListener('click', ()=>{ playClap(); goOverview(); });
 document.getElementById('brand-home').addEventListener('click', goHero);
 document.getElementById('brand-home-2').addEventListener('click', goHero);
 document.getElementById('btn-overview').addEventListener('click', goOverview);
